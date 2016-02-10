@@ -1,12 +1,12 @@
 # Statistical Rethinking Chapter 2, sections 2.1 - 2.3
 
-Name:
+Name: Ruijuan Li        
 
-## 2E1
+## 2E1 (2)
 
-## 2E2
+## 2E2 (4)
 
-## 2E3
+## 2E3 (5)
 
 ## 2E4
 
