@@ -19,13 +19,16 @@ Name: Ruijuan Li
 2M4 
 >conditonal on seeing black on one side, # of ways that a card could produce
     white/white = 0
+
     white/black = 1
+
     black/black =2
+
     Total ways to produce black =3. So the probability to produce black/black = 2/3
 
 2M1
 
-WWW 
+>WWW 
       p_grid <- seq(from = 0, to = 1, length.out = 20)
       prior <- rep(1, 20)
       likelihood <- dbinom(3, size = 3, prob = p_grid)
