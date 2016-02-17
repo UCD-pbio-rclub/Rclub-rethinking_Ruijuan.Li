@@ -29,14 +29,14 @@ Name: Ruijuan Li
 2M1
 
 >WWW 
-      p_grid <- seq(from = 0, to = 1, length.out = 20)
-      prior <- rep(1, 20)
-      likelihood <- dbinom(3, size = 3, prob = p_grid)
-      unstd.posterior <- likelihood * prior
-      posterior <- unstd.posterior / sum(unstd.posterior)
-      plot(p_grid, posterior, type = "b", 
-      xlab="probability of water", ylab="posterior probabilty")
-      mtext("WWW")
+    p_grid <- seq(from = 0, to = 1, length.out = 20)
+    prior <- rep(1, 20)
+    likelihood <- dbinom(3, size = 3, prob = p_grid)
+    unstd.posterior <- likelihood * prior
+    posterior <- unstd.posterior / sum(unstd.posterior)
+    plot(p_grid, posterior, type = "b", 
+    xlab="probability of water", ylab="posterior probabilty")
+    mtext("WWW")
 
 WWWL
 p_grid <- seq(from = 0, to = 1, length.out = 20)
