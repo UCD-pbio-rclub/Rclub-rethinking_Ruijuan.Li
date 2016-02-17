@@ -2,16 +2,22 @@
 
 Name: Ruijuan Li        
 
-#2E1 (2)
+2E1 
+>(2)
 
-#2E2 (3)
+2E2 
+>(3)
 
-#2E3 (1)
+2E3 
+>(1)
 
-#2E4 >"The probability of water is 0.7" indicates that out of 10 times toss, the chance that you get the water side is 7 times. However, which side you get is not necessirily subjected to probability, instead, it is subjected to the gravity, the way you do the toss, whether there is wind when tossing, etc. 
-2M3 Pr(earth|land) = Pr(land|earth)*Pr(earth)/Pr(land) = 0.3 * 0.5 / 130/200 = 0.23
+2E4 
+>"The probability of water is 0.7" indicates that out of 10 times toss, the chance that you get the water side is 7 times. However, which side you get is not necessirily subjected to probability, instead, it is subjected to the gravity, the way you do the toss, whether there is wind when tossing, etc. 
+2M3 
+>Pr(earth|land) = Pr(land|earth)*Pr(earth)/Pr(land) = 0.3 * 0.5 / 130/200 = 0.23
 
-2M4 >conditonal on seeing black on one side, # of ways that a card could produce
+2M4 
+>conditonal on seeing black on one side, # of ways that a card could produce
     white/white = 0
     white/black = 1
     black/black =2
