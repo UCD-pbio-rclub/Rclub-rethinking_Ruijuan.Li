@@ -1,0 +1,108 @@
+---
+title: "Chapter-03-assignment.R"
+author: "Ruijuan"
+date: "February 23, 2016"
+output: html_document
+---
+
+
+install packages 
+
+```{r}
+library(rmarkdown)
+library(rstan)
+library(rethinking)
+```
+
+R code 3.27
+
+```{r}
+p_grid <- seq(0, 1, length.out = 1000)
+prior <- rep(1, 1000)
+likelihood <- dbinom(6, size = 9, prob = p_grid)
+posterior <- likelihood * prior
+posterior <- posterior/sum(posterior)
+set.seed(100)
+samples <- sample(p_grid, prob = posterior, size = 1e4, replace = TRUE)
+```
+
+use the values in samples to answer the questions 
+
+3E1-3E3 the intervals of defined boundary
+
+3E1. How much posterior probability lies below p=0.2
+
+```{r}
+sum(posterior[p_grid < 0.2])
+sum(samples<0.2)/1e4
+```
+
+3E2. How much posterior proabbility lies above p=0.8
+
+```{r}
+sum(posterior[p_grid > 0.8])
+sum(samples>0.8)/1e4
+```
+
+3E3. How much posterior probability lies between p=0.2 and p=0.8
+
+```{r}
+sum(posterior[p_grid > 0.2 & p_grid<0.8])
+sum(samples>0.2 & samples<0.8)/1e4
+```
+
+The intervals of defined mass
+
+3E4. 20% of the posterior probability lies below which value of p? 
+
+```{r}
+quantile(samples, 0.2)
+```
+
+3E5. 20% of the posterior probability lies above which value of p?
+
+```{r}
+quantile(samples, 0.8)
+```
+
+3E6. Which values of p contain the narrowest interval equal to 66% of the posterior probability?
+
+```{r}
+HPDI(samples, prob = 0.66)
+```
+
+3E7. Which values of p contain 66% of the posterior probability, assuming equal posterior
+
+proability both below and above the interval? 
+
+```{r}
+PI(samples, prob = 0.66)
+```
+
+3M1. Suppose the globe tossing data had turned out to be 8 water in 15 tosses. 
+
+Construct the posterior distribution, using grid approximation. Use the same flat prior as before
+
+```{r}
+p_grid <- seq(0, 1, length.out = 1000)
+prior <- rep(1, 1000)
+likelihood <- dbinom(8, size = 15, prob = p_grid)
+posterior <- likelihood * prior
+posterior <- posterior/sum(posterior)
+```
+```{r,echo=FALSE}
+plot(p_grid, posterior, type = "b", 
+     xlab="probability of water", ylab="posterior probabilty")
+mtext("posterior distribution")
+```
+
+3M2. Draw 10,000 samples from the grid approximation from above. 
+
+Then use the samples to calculate the 90% HPDI() for p. 
+
+```{r}
+set.seed(8808)
+samples <- sample(p_grid, prob = posterior, size = 1e4, replace = TRUE)
+# the 90% highest posterior density (narrowest) interval
+HPDI(samples, prob = 0.9)
+```
