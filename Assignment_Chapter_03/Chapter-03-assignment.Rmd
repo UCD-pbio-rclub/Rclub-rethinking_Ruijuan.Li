@@ -5,6 +5,7 @@ date: "February 23, 2016"
 output: html_document
 ---
 
+just for practice 
 
 install packages 
 
@@ -94,6 +95,8 @@ posterior <- posterior/sum(posterior)
 plot(p_grid, posterior, type = "b", 
      xlab="probability of water", ylab="posterior probabilty")
 mtext("posterior distribution")
+set.seed(100)
+samples <- sample(p_grid, prob = posterior, size = 1e4, replace = TRUE)
 ```
 
 3M2. Draw 10,000 samples from the grid approximation from above. 
@@ -109,18 +112,152 @@ HPDI(samples, prob = 0.9)
 
 _STOP AFTER 3M2 FOR 02/25 ASSIGNMENT_
 
-## 3M3
+3M3. construct a posterior predictive check for this model and data. This means simulate the 
 
-## 3M4
+distribution of samples, averaging over the posterior uncertaninty in p (? what does this mean). 
 
-## 3M5
+What is the probability of observing 8 water in 15 tosses? 
 
-## 3H1
+```{r}
+# 1e5 random results from size of 15 (15 tosses, based on the prob of samples generated above)
+dummy_w_eight_fifteen <- rbinom(1e5, size = 15, prob = samples)
+table(dummy_w_eight_fifteen)/1e5
+```
 
-## 3H2
+3M4. Using the posterior distribution constructed from the new (8/15) data, now calcualte the 
 
-## 3H3
+probability of observing 6 water in 9 tosses. (don't understand the question, use this posterior 
 
-## 3H4
+distribution as what? draw samples from this posterior distibution? view this distribution as a 
 
-## 3H5
+model? )
+
+```{r}
+dummy_w_six_nine_new <- rbinom(1e5, size = 9, prob = samples)
+table(dummy_w_six_nine_new)/1e5
+# check the new 8/15 distribution
+simplehist(dummy_w_eight_fifteen)
+# define a grid 
+p_grid <- seq(0, 1, length.out = 1e5)
+# use new 8/15 as the posterior
+posterior = dummy_w_eight_fifteen
+posterior = dummy_w_eight_fifteen/sum(dummy_w_eight_fifteen)
+# draw samples from posterior
+set.seed(100)
+samples <- sample(p_grid, prob = posterior, size = 1e4, replace = TRUE)
+# sampling to simulate prediction
+dummy_w_six_nine <- rbinom(1e5, size = 9, prob = samples)
+table(dummy_w_six_nine)/1e5
+```
+
+3M5. Start over at 3M1, but now use a prior that is zero below p=0.5 and a constant above p=0.5, 
+
+This correspondes to prior information that a majority of the Earth's surface is water. Repeat
+
+each problem above and compare the inferences. What difference does the better prior make? If it 
+
+helps, compare inferences (using both priors) to the true value p=0.7 (I feel there is very little 
+
+difference made with different prior...)
+
+```{r}
+# do p_grdi approximation and draw samples
+p_grid <- seq(0, 1, length.out = 1000)
+prior <- rep(p_grid<0.5, 0, 1)
+likelihood <- dbinom(8, size = 15, prob = p_grid)
+posterior <- likelihood * prior
+posterior <- posterior/sum(posterior)
+set.seed(100)
+samples <- sample(p_grid, prob = posterior, size = 1e4, replace = TRUE)
+
+# sampling to simulate prediction 8/15
+dummy_w_eight_fifteen_new <- rbinom(1e5, size = 15, prob = samples)
+table(dummy_w_eight_fifteen_new)/1e5
+
+# 6/9, with this original 8/15 posterior
+dummy_w_six_nine_new <- rbinom(1e5, size = 9, prob = samples)
+table(dummy_w_six_nine_new)/1e5
+
+# with 8/15 posterior from simulated data
+p_grid <- seq(0, 1, length.out = 1e5)
+posterior <- dummy_w_eight_fifteen_new
+posterior <- posterior/sum(posterior)
+set.seed(100)
+samples <- sample(p_grid, prob = posterior, size = 1e5, replace = TRUE)
+dummy_w_six_nine_new_new <- rbinom(1e5, size = 9, prob = samples)
+table(dummy_w_six_nine_new_new)/1e5
+```
+
+3H1
+
+# R code 3.29, load data into R
+
+```{r}
+library(rethinking)
+data(homeworkch3)
+```
+
+# R code 3.30, to compute the total number of boys born across all of these births
+
+```{r}
+sum(birth1) + sum(birth2)
+```
+
+```{r}
+# do p_grid approximation, to compute the posterior distribution of a birth being a boy, with 
+# uniform prior
+p_grid <- seq(0, 1, length.out = 1000)
+prior <- rep(1, 1000)
+likelihood <- dbinom(1, size = 1, prob = p_grid) # also binomial distribution??? I don't think 
+# so!!! So this might be wrong!!!  
+posterior <- likelihood * prior
+posterior <- posterior/sum(posterior)
+```
+```{r,echo=FALSE}
+plot(p_grid, posterior, type = "b", 
+     xlab="probability of boy", ylab="posterior probabilty")
+mtext("posterior distribution")
+```
+
+3H2. 
+
+```{r}
+# randomly draw 1e4 samples and caculate 50%, 89%, and 97% highest posterior density intervals
+set.seed(100)
+samples <- sample(p_grid, prob = posterior, size = 1e4, replace = TRUE)
+HPDI(samples, prob = 0.5)
+HPDI(samples, prob = 0.89)
+HPDI(samples, prob = 0.97)
+```
+
+3H3.
+```{r}
+# make simulated predctions
+dummy_boy <- rbinom(1e4, size = 200, prob = samples)
+dens(dummy_boy)
+```
+
+3H4. Now compare 10,000 counts of boys from 100 simulated first borns only to the number of boys 
+
+in the first births, birth1. How does the model look in this light? (don't understand this Q)
+
+```{r}
+```
+
+3H5. The model assumes that sex of first and second births are independent. To check this
+
+assumption, focus now on second births that followed female first borns. Compare 10,000 simulated
+
+counts of boys to only those second births that followed girls. To do this correctly, you need to
+
+count the number of first borns who were girls and simulate that many births, 10,000 times. Compare
+
+the counts of boys in your simulations to the actual observed count of boys following girls. How
+
+does the model look in this light? Any guesses what is going on in these data? 
+
+```{r}
+```
+
+
+
