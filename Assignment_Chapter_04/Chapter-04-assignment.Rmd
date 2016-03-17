@@ -1,19 +1,42 @@
+---
+output: pdf_document
+---
 # Statistical Rethinking Chapter 4 problems
 
-__Name:__
+__Name: Ruijuan Li
 
 
 # For 03/17/16
 
-## 4E1
+## 4E1 the first one is the likelihood
 
-## 4E2
+## 4E2 two, mu and sigma
 
-## 4E3
+## 4E3 this formula should look very similar to the one on P83 
 
-## 4M1
+## 4M1 for the model definition below, simulate observed heights from the prior. 
+```{r}
+library(rethinking)
+sample_mu <- rnorm(1e4, 0, 10)
+sample_sigma <- runif(1e4, 0, 10)
+prior <- rnorm(1e4, sample_mu, sample_sigma)
+dens(prior)
+```
 
-## 4M2
+## 4M2 translate the model into a map formula
+```{r}
+data("Howell1")
+d <- Howell1
+d <- d[d$age >=18,]
+m <- map(
+  alist(
+    height ~ dnorm(mu, sigma),
+    mu ~ dnorm(0, 10),
+    sigma ~ dunif(0, 10)
+  ), 
+  data = d # prblem... 
+)
+```
 
 # For 03/24/16
 
