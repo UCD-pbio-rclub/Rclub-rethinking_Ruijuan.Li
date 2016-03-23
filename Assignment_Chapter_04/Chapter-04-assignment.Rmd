@@ -1,5 +1,5 @@
 ---
-output: pdf_document
+output: html_document
 ---
 # Statistical Rethinking Chapter 4 problems
 
@@ -8,11 +8,17 @@ __Name: Ruijuan Li
 
 # For 03/17/16
 
-## 4E1 the first one is the likelihood
+## 4E1 
 
-## 4E2 two, mu and sigma
+the first one is the likelihood
 
-## 4E3 this formula should look very similar to the one on P83 
+## 4E2 
+
+two, mu and sigma
+
+## 4E3 
+
+this formula should look very similar to the one on P83 
 
 ## 4M1 for the model definition below, simulate observed heights from the prior. 
 ```{r}
@@ -42,15 +48,47 @@ m <- map(
 
 ## 4E4
 
+second line
+
 ## 4E5
+
+three, alpha, beta, and sigma
 
 ## 4M3
 
+yi ~ Normal(mui, sigma)
+
+mui = a+b*xi 
+
+a ~ Normal(0, 50)
+
+b ~ Normal(0, 10)
+
+sigma ~ Uniform(0, 50)
+
 ## 4M4
+
+hi ~ Normal(mui, sigma1) 
+
+mui = a + b*xi 
+
+a ~ Normal(mu2, sigma2)
+
+b ~ Normal(mu3, sigma3)
+
+sigma ~ Uniform(n, m)
 
 ## 4M5
 
+mu2 = 120
+
+b > 0
+
 ## 4M6
+
+sigma <= 64
+
+sigma2 <= 64
 
 # For 03/31/16
 
