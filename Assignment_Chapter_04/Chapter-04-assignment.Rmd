@@ -1,5 +1,5 @@
 ---
-output: html_document
+output: pdf_document
 ---
 # Statistical Rethinking Chapter 4 problems
 
@@ -94,7 +94,7 @@ sigma2 <= 64
 
 ## 4H1 predicted height or mean of height??? 
 
-```{}
+```{r}
 # import data
 library(rethinking)
 data("Howell1")
@@ -115,7 +115,6 @@ model1 <- map(
 # plot the model
 plot(height ~ weight, data=d)
 abline(a=coef(model1)["a"], b = coef(model1)["b"])
-
 # extract samples to form a posterior
 post <- extract.samples(model1)
 colnames(post)
@@ -137,14 +136,14 @@ mu.HPDI
 ```
 
 ## 4H2
-```{}
+```{r}
 # get data
 d2 <- d[d$age < 18, ]
 nrow(d2)
 ```
 
 # (a)
-```{}
+```{r}
 # fit a linear regression model
 model2 <- map(
   alist(
@@ -171,7 +170,7 @@ mean(post2$b)*10
 ```
 
 # (b)
-```{}
+```{r}
 plot(height ~ weight, data=d2)
 
 # use link to generate distribution of posterior values for mu
@@ -205,7 +204,7 @@ the current data better and can possibly serve as a better model.
 ## 4H3
 
 # (a)
-```{}
+```{r}
 # import data
 d <- Howell1
 nrow(d)
@@ -226,14 +225,16 @@ plot(d$height, d$weight.log)
 ```
 
 # (b)
-```{}
+```{r}
 plot(height ~ weight, data=Howell1,
 col=col.alpha(rangi2, 0.4))
 
 # the posterior from (a)
 par(new=T)
 plot(d$height, d$weight)
+```
 
+```{}
 # one way for the rest #######################################
 # use link to generate distribution of posterior values for mu
 post3 <- extract.samples(model3)
@@ -267,6 +268,3 @@ lines(weight.seq, mu.mean)
 shade(mu.PI, weight.seq)
 shade(height.PI, weight.seq)
 ```
-
-
-
