@@ -1,16 +1,65 @@
 # Statistical Rethinking Chapter 4 problems
 
-__Name:__
+__Name: Ruijuan 
 
 
 # For 04/11/2016
 
-## 5E1
+## 5E1 
+```{}
+2,3,4
+```
 
 ## 5E2
+```{}
+write down a multiple regression to evaluate the claim: 
+Animal diversity is linearly related to latitude, but only after contolling for plant diversity. 
+(refer to counterfactual plot section?)
+Da ~ a + BlL+BpDp
+Da: animal diversity
+a: intercept
+Bl: coefficient that measures the association between latitude and animal diveristy
+L: latitude
+Bp: coefficient that measures the plant diversity between latitude and animal diveristy
+Dp: plant diversity as a constant 
+```
 
 ## 5M1
+```{}
+significant SNP VS. population structure and traits 
+significant SNPs are associated with traits and there is also spurious association between 
+population structure and significant SNPs, but when population structure are corrected, the 
+SNPs associated with population structure should mostly vanish. 
+```
 
 ## 5M3
+```{}
+"How might a high divorce rate cause a high marriage rate"? think of a way to evaluate this
+relationship using multiple regression. (don't understand the question...)
+M ~ a + BD + other factors 
+M: marriage rate
+a: intercept
+B: association between marriage rate and divorce rate
+other factors???
+```
 
 ## 5M4
+```{}
+In the divorce data, state with high number of Mormons (LDS) have much lower divorce rate than 
+the regression model expected. Find a list of LDS population by state and use those numbers as 
+a predictor variable, predicting divorce rate using marriage rate, median age at marriage, and 
+percent LDS population (possibly standardized). You may consider transformation of the raw 
+percent LDS variable. 
+```
+
+
+
+
+
+
+
+
+
+
+
+
