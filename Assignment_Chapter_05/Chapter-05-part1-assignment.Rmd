@@ -78,6 +78,8 @@ d$percent.LDS.s <- (d$percent.LDS-mean(d$percent.LDS))/sd(d$percent.LDS) # just 
 d$Marriage.s <- (d$Marriage-mean(d$Marriage))/sd(d$Marriage) 
 d$MedianAgeMarriage.s <- (d$MedianAgeMarriage-mean(d$MedianAgeMarriage))/sd(d$MedianAgeMarriage)
 
+plot(d$percent.LDS, d$Divorce)
+
 # model with untransformed data
 m5M4.1 <- map(alist(
   Divorce ~ dnorm(mu, sigma),
