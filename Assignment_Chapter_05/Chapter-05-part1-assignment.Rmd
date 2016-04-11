@@ -7,7 +7,10 @@ __Name: Ruijuan
 
 ## 5E1 
 ```{}
-2,3,4
+2 & 4
+3 is only one predictor, dosen't fit the definition of multiple linear regression: 
+As a predictive analysis, the multiple linear regression is used to explain the relationship 
+between one continuous depedent variable from two or more independent variables. 
 ```
 
 ## 5E2
@@ -26,21 +29,22 @@ Dp: plant diversity as a constant
 
 ## 5M1
 ```{}
-significant SNP VS. population structure and traits 
-significant SNPs are associated with traits and there is also spurious association between 
-population structure and significant SNPs, but when population structure are corrected, the 
-SNPs associated with population structure should mostly vanish. 
+spurious significant SNP VS. population structure and phenotypic data 
+spurious significant SNPs are associated with phenotypic data and population structure. 
+But when population structure is entered in the model, the correlation between spurious significant 
+SNPs and phenotypic data should mostly vanish. 
 ```
 
 ## 5M3
 ```{}
 "How might a high divorce rate cause a high marriage rate"? think of a way to evaluate this
-relationship using multiple regression. (don't understand the question...)
+relationship using multiple regression. 
 M ~ a + BD + other factors 
 M: marriage rate
 a: intercept
 B: association between marriage rate and divorce rate
 other factors???
+first marriage or second marriage... 
 ```
 
 ## 5M4
@@ -51,6 +55,59 @@ a predictor variable, predicting divorce rate using marriage rate, median age at
 percent LDS population (possibly standardized). You may consider transformation of the raw 
 percent LDS variable. 
 ```
+
+```{r}
+library(rethinking)
+data("WaffleDivorce")
+d <- WaffleDivorce
+LDS <- read.csv("~/Desktop/2016_spring/R_club/homework/Rclub-rethinking_Ruijuan.Li/new/Assignment_Chapter_05/LDS.csv")
+head(LDS)
+summary(d)
+nrow(d)
+nrow(LDS)
+head(d)
+d <- merge(d, LDS, by.x ="Location", by.y="state") # merge these two datasets by "Location" of d and "state" of LDS
+nrow(d) # one state was dropped due to missing data of LDS
+
+# transform the LDS data and standadization
+d$percent.LDS.log10 <- log10(d$percent.LDS) # log10 transformation
+d$percent.LDS.log10.s <- (d$percent.LDS.log10-mean(d$percent.LDS.log10))/sd(d$percent.LDS.log10) # log10 transformation & standardization
+
+d$percent.LDS.s <- (d$percent.LDS-mean(d$percent.LDS))/sd(d$percent.LDS) # just standadization
+# standadization marriage rate and median age marriage rate
+d$Marriage.s <- (d$Marriage-mean(d$Marriage))/sd(d$Marriage) 
+d$MedianAgeMarriage.s <- (d$MedianAgeMarriage-mean(d$MedianAgeMarriage))/sd(d$MedianAgeMarriage)
+
+# model with untransformed data
+m5M4.1 <- map(alist(
+  Divorce ~ dnorm(mu, sigma),
+  mu <- a + bR*Marriage.s + bA*MedianAgeMarriage.s + bLDS*percent.LDS.s,
+  a ~ dnorm(10,10),
+  bR ~ dnorm(0,1),
+  bA ~ dnorm(0,1),
+  bLDS ~ dnorm(0,1),
+  sigma ~ dunif(0,20)),
+  data=d)
+
+precis(m5M4.1)
+
+# model with transformed data
+m5M4.2 <- map(alist(
+  Divorce ~ dnorm(mu, sigma),
+  mu <- a + bR*Marriage.s + bA*MedianAgeMarriage.s + bLDS*percent.LDS.log10.s,
+  a ~ dnorm(10,10),
+  bR ~ dnorm(0,1),
+  bA ~ dnorm(0,1),
+  bLDS ~ dnorm(0,1),
+  sigma ~ dunif(0,20)),
+  data=d)
+
+precis(m5M4.2)
+
+# the untransformed data fit better because it's 89% confidence intervals are further away from 0.
+# -0.98 & -0.10 VS -0.93 & -0.23
+```
+
 
 
 
