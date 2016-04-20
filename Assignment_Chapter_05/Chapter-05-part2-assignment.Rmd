@@ -4,17 +4,179 @@ output:
   html_document: 
     keep_md: yes
 ---
-# Statistical Rethinking Chapter 4 problems
+# Statistical Rethinking Chapter 5 problems
 
-__Name:__
+# __Name: Ruijuan Li
 
 
-# For 04/18/2016
+# For 04/18/2016 postponed to 04/25/2016
 
-## 5M2
+## 5M2 
+```{r}
+# Invent your own example of a masked relationship. An outcome variable should be correlated with both predictor variables, but in opposite directions. And the two predictor variables should be correlated with one another. 
+```
 
-## 5H1
+```{r}
+# Carbohydrate intake is positively correlated with BMI, fruit/vegetable intake is negatively correlated with BMI. Carbohydrate intake and fruit/vetetable intake are correlated with one another. 
+```
 
-## 5H2
+## 5H1 
+```{r}
+# Fit two bivariate Gaussian regressions, using map: (1) body weight as a linear function of territory size (area), and (2) body weight as a linear function of groupsize. Plot the results of these regressions, displaying the MAP regression line and the 95% interval of the mean. Is either variable important for predicting fox body weight? 
+```
 
-## 5H3
+```{r}
+library(rethinking)
+data("foxes")
+d <- foxes
+d
+plot(d$area, d$weight)
+plot(d$groupsize, d$weight)
+
+# 1) body weight as a linear function of territory size (area)
+m5H1.1 <- map(
+  alist(
+    weight ~ dnorm(mu, sigma),
+    mu <- a + ba*area,
+    a ~ dnorm(0, 100),
+    ba ~ dnorm(0, 10),
+    sigma ~ dunif(0, 10)
+  ), 
+  data = d)
+
+precis(m5H1.1, digits = 3, prob = 0.95)
+
+# 2) body weight as a linear function of groupsize
+m5H1.2 <- map(
+  alist(
+    weight ~ dnorm(mu, sigma),
+    mu <- a + bg* groupsize,
+    a ~ dnorm(0, 100),
+    bg ~ dnorm(0, 10),
+    sigma ~ dunif(0, 10)
+  ), 
+  data = d)
+# Q: how to determine the prior??? 
+
+precis(m5H1.2, digits = 3, prob = 0.95)
+# the coeffecient is very small, close to zero with 95% intervals on both sides of zero, seems not important 
+cor(d$groupsize, d$area) # 0.8275945 
+```
+
+## 5H2 
+```{r}
+# Now fit a multiple linear regression with weight as the outcome and both area and groupsize as predictor variables. Plot the predictions of the model for each predictor, holding the other predictor constant at its mean. What does this model say about the importance of each variable? Why do you get different results than you got in the exercise just above?
+```
+
+```{r}
+# fit a multivariate regression
+m5H2 <- map(
+  alist(
+    weight ~ dnorm(mu, sigma),
+    mu <- a + ba*area + bg*groupsize,
+    a ~ dnorm(0, 100),
+    ba ~ dnorm(0, 10),
+    bg ~ dnorm(0, 10),
+    sigma ~ dunif(0, 10)
+  ), 
+  data = d)
+precis(m5H2)
+# now looks like they both become important in prediction
+
+################ work on the plot below #################
+# with area fixed  
+mean.area <- mean(d$area)
+
+# don't understand the following code!!!!!!! 
+np.seq <- 0:10
+pred.data <- data.frame(
+  weight = np.seq,
+  area.mean=mean.area
+)
+
+mu <- link(m5H2, data = pred.data, n = 1e4)
+mu.mean <- apply(mu, 2, mean)
+mu.PI <- apply(mu, 2, PI)
+
+plot(weight ~ groupsize, data=d, type="n")
+lines(np.seq, mu.mean)
+lines(np.seq, mu.PI[1,], lty=2)
+lines(np.seq, mu.PI[2,], lty=2)
+
+# # with groupsize fixed 
+mean.groupsize <- mean(d$groupsize)
+
+# don't understand the following code!!!!!!! 
+np.seq <- 0:10
+pred.data <- data.frame(
+  weight = np.seq,
+  group.size=mean.groupsize
+)
+
+mu <- link(m5H2, data = pred.data, n = 1e4)
+mu.mean <- apply(mu, 2, mean)
+mu.PI <- apply(mu, 2, PI)
+
+plot(weight ~ area, data=d, type="n")
+lines(np.seq, mu.mean)
+lines(np.seq, mu.PI[1,], lty=2)
+lines(np.seq, mu.PI[2,], lty=2)
+
+# I cannot get the right plot, but I guess the two are masking the effect of each other because they are highly correlated. 
+####################################################
+```
+
+## 5H3 
+```{r}
+# Finally, consider the avgfood variable. Fit two more multiple regressions: (1) body weight as an additive function of avgfood and groupsize, and (2) body weight as an additive function of all three variables, avgfood and groupsize and area. Compare the results of these models to the previous models you've fit, in the first two exercises. (a) Is avgfood or area a better predictor of body weight? If you had to choose one or the other to include in a model, which would it be? Support your assessment with any tables or plots you choose. 
+```
+
+```{r}
+d
+
+# 1) body weight as an additive function of avgfood and groupsize
+m5H3.1 <- map(
+  alist(
+    weight ~ dnorm(mu, sigma),
+    mu <- a + bav*avgfood + bg*groupsize,
+    a ~ dnorm(0, 100),
+    bav ~ dnorm(0, 10),
+    bg ~ dnorm(0, 10),
+    sigma ~ dunif(0, 10)
+  ), 
+  data = d)
+precis(m5H3.1)
+
+# 2) body weight as an additive function of all three variables, avgfood and groupsize and area
+m5H3.2 <- map(
+  alist(
+    weight ~ dnorm(mu, sigma),
+    mu <- a + ba*area + bav *avgfood + bg*groupsize, 
+    a ~ dnorm(0, 100),
+    c(ba,bav,bg) ~ dnorm(0, 10), 
+    sigma ~ dunif(0, 10)
+  ),
+  data = d)
+precis(m5H3.2)
+
+# based on number, looks like avgfood, I would choose avgfood
+
+# (b) When both avgfood or area are in the same model, their effects are reduced (closer to zero) and their standard errors are larger than when they are included in separate models. Can you explain this result?
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
