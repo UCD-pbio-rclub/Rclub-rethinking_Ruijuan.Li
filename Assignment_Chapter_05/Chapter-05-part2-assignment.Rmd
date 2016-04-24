@@ -81,17 +81,16 @@ m5H2 <- map(
   ), 
   data = d)
 precis(m5H2)
+
 # now looks like they both become important in prediction
 
-################ work on the plot below #################
 # with area fixed  
 mean.area <- mean(d$area)
 
-# don't understand the following code!!!!!!! 
 np.seq <- 0:10
 pred.data <- data.frame(
-  weight = np.seq,
-  area.mean=mean.area
+  groupsize = np.seq,
+  area=mean.area
 )
 
 mu <- link(m5H2, data = pred.data, n = 1e4)
@@ -106,11 +105,10 @@ lines(np.seq, mu.PI[2,], lty=2)
 # # with groupsize fixed 
 mean.groupsize <- mean(d$groupsize)
 
-# don't understand the following code!!!!!!! 
 np.seq <- 0:10
 pred.data <- data.frame(
-  weight = np.seq,
-  group.size=mean.groupsize
+  area = np.seq,
+  groupsize=mean.groupsize
 )
 
 mu <- link(m5H2, data = pred.data, n = 1e4)
@@ -122,8 +120,6 @@ lines(np.seq, mu.mean)
 lines(np.seq, mu.PI[1,], lty=2)
 lines(np.seq, mu.PI[2,], lty=2)
 
-# I cannot get the right plot, but I guess the two are masking the effect of each other because they are highly correlated. 
-####################################################
 ```
 
 ## 5H3 
@@ -159,9 +155,61 @@ m5H3.2 <- map(
   data = d)
 precis(m5H3.2)
 
-# based on number, looks like avgfood, I would choose avgfood
+# based on number, looks like avgfood, I would choose avgfood, because it has a greater mean value of coefficient. 
+# Q: how to decide which is the better predictor??? 
 
 # (b) When both avgfood or area are in the same model, their effects are reduced (closer to zero) and their standard errors are larger than when they are included in separate models. Can you explain this result?
+
+# when only avgfood is included in the model
+m5H3.3 <- map(
+  alist(
+    weight ~ dnorm(mu, sigma),
+    mu <- a + bav*avgfood,
+    a ~ dnorm(0, 100),
+    bav ~ dnorm(0, 10),
+    sigma ~ dunif(0, 10)
+  ), 
+  data = d)
+
+precis(m5H3.3, digits = 3, prob = 0.95)
+
+# when only area is included in the model
+m5H1.1 <- map(
+  alist(
+    weight ~ dnorm(mu, sigma),
+    mu <- a + ba*area,
+    a ~ dnorm(0, 100),
+    ba ~ dnorm(0, 10),
+    sigma ~ dunif(0, 10)
+  ), 
+  data = d)
+
+precis(m5H1.1, digits = 3, prob = 0.95)
+
+# when both avgfood & area included in the model
+m5H3.4 <- map(
+  alist(
+    weight ~ dnorm(mu, sigma),
+    mu <- a + ba*area + bav*avgfood,
+    a ~ dnorm(0, 100),
+    ba ~ dnorm(0, 10),
+    bav ~ dnorm(0, 10),
+    sigma ~ dunif(0, 10)
+  ), 
+  data = d)
+precis(m5H3.4)
+
+# the question that multiple linear regression answers: What is the value of knowing each 
+# predictor, after already knowing all of the other predictors? 
+
+cor(d$avgfood, d$area) # 0.8831038 very high correlation between avgfood & area... 
+
+# When both avgfood or area are in the same model, their effects are reduced (closer to zero) and 
+# their standard errors are larger than when they are included in separate models: This means
+# there is negative values of knowing avgfood/area after already knowing area/avgfood. why? 
+
+# 
+
 ```
 
 
