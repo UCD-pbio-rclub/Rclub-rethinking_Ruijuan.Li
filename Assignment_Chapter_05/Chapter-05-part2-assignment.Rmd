@@ -235,6 +235,7 @@ m.PHD.time <- map(
 # E4
 ```{r}
 # (3) b # the general rule: to inlude k categories in a linear model, you require k-1 dummy variables. 
+# (1) & (3) & (4) & (5)??? 
 ```
 
 # M5 
@@ -276,6 +277,8 @@ m.obesity.rate <- map(
     sigma ~ dunif(0, 2)
   ), 
   data = x)
+
+# inlucde gas price as predictors... different models w/ different combination of predictors.
 ```
 
 
