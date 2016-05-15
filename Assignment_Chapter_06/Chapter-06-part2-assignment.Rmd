@@ -1,0 +1,73 @@
+---
+title: "Chapter-06-part2-assignment"
+author: "Ruijuan Li"
+date: "May 15, 2016"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+# 6M1
+```{r}
+# Write down and compare the definitions of AIC, DIC, and WAIC. Which of these criteria is most general? Which assumptions are required to transform a more general criterion into a less general one? 
+
+# AIC: AKAIKE Information Criterion, AIC = Dtrain + 2p, the deviance in-sample (training) plus twice the number of parameters on the horizontal axis   
+
+# DIC: Deviance Information Criterion, DIC = Dbar + (Dbar-D^), DIC is calcuated from the posterior distribution of the training deviance. D is defined as the posterior distribution of training deviance, Dbar as the average of D, D^ as the deviance calculated at the posterior mean. Dbar - D^ --> PD is sometimes called penalty term, it is the expected distance between the deviance in-sample and the deviance out-of-sample.  
+
+# WAIC: Widely Applicable Information Criterion, WAIC= -2(lppd-Pwaic). WAIC is pointwise, lppd: the log-pointwise-predictive-density is the total across observations of the log of the average likelihood of each observation; Pwaic: the effective number of parameter, which is the variance in the log-likelihood for observation i in the training sample. 
+
+# They all provide esitmate of the average out-of-sample deviance, which is the approximation of prediction accuracy. 
+# WAIC is more general, because it makes no assumption of the shape of the posterior.  
+# difference between AIC & DIC, AIC assumes plat prior while DIC doesn't. 
+
+# three assumptions are required to transform a more general criterion in to a less general one. 1) flat prior 2) approximately multivariante Gaussian distribution of postrior 3) the sample size N is much greater than the number of the parameter k. 
+```
+
+# 6M5
+```{r}
+# Provide an informal explanation of why informative priors reduce overfitting. 
+
+# The root of overfitting is model's tendency to get overexcited by the training sample. By providing informative "skeptical" prior, the model is still trained to learn the regular feature of the a sample but at a slower rate. Why? I thought informative prior reduce underfitting... I don't think I get the right answer...   
+
+```
+
+# 6M6 
+```{r}
+# Provide an information explanation of why overly informative priors result in underfitting. 
+
+# Underfitting? not overfitting? For the case with overly informative priors, the model will be very sensitive to the exact sample used to fit it, leading to a potentially large mistakes when future data is not exactly like the past data. No idea... 
+
+```
+
+# 6J1
+```{r}
+# R code 6.15 WAIC calculation 
+library(rethinking)
+data(cars)
+m <- map(
+  alist(
+    dist ~ dnorm(mu, sigma),
+    mu <- a + b*speed,
+    a ~ dnorm(0, 100),
+    b ~ dnorm(0, 10),
+    sigma ~ dunif(0, 30)
+  ), data = cars)
+post <- extract.samples(m, n = 1000)
+head(post)
+## R code 6.16 need the log-likelihood of each observation i at each sample s from the posterior
+n_samples <- 1000 # let n_samples equals 1000
+ll <- sapply(1:n_samples, function(s){ # for each sample among the 1000 samples, apply a function
+ mu <- post$a[s] + post$b[s]*cars$speed # this function calcuate the mu (average speed) using the formula & data from posterior (see above model)
+ dnorm(cars$dist, mu, post$sigma[s], log = TRUE) # then this function calculate the probability of the log-likelihood of each observation at each sample from the poterior 
+})
+head(cars) 
+dim(cars)
+?dnorm
+dim(ll)
+head(ll)
+nrow(cars)
+```
+
+
+
