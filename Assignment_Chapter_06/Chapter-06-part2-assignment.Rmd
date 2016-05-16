@@ -28,16 +28,14 @@ output:
 ```{r}
 # Provide an informal explanation of why informative priors reduce overfitting. 
 
-# The root of overfitting is model's tendency to get overexcited by the training sample. By providing informative "skeptical" prior, the model is still trained to learn the regular feature of the a sample but at a slower rate. Why? I thought informative prior reduce underfitting... I don't think I get the right answer...   
-
+# Informative priors reduce overfitting because they keep the model from getting "too excited" about the data and just mimicking the data when it constructs the posterior distribution. Providing an informative prior keeps the model from learning too much from the training data set.
 ```
 
 # 6M6 
 ```{r}
-# Provide an information explanation of why overly informative priors result in underfitting. 
+# Provide an informal explanation of why overly informative priors result in underfitting. 
 
-# Underfitting? not overfitting? For the case with overly informative priors, the model will be very sensitive to the exact sample used to fit it, leading to a potentially large mistakes when future data is not exactly like the past data. No idea... 
-
+# Overly informative priors result in underfitting because not enough information from the training dataset is making it into the model. 
 ```
 
 # 6J1
@@ -55,11 +53,12 @@ m <- map(
   ), data = cars)
 post <- extract.samples(m, n = 1000)
 head(post)
+dim(post)
 ## R code 6.16 need the log-likelihood of each observation i at each sample s from the posterior
 n_samples <- 1000 # let n_samples equals 1000
 ll <- sapply(1:n_samples, function(s){ # for each sample among the 1000 samples, apply a function
- mu <- post$a[s] + post$b[s]*cars$speed # this function calcuate the mu (average speed) using the formula & data from posterior (see above model)
- dnorm(cars$dist, mu, post$sigma[s], log = TRUE) # then this function calculate the probability of the log-likelihood of each observation at each sample from the poterior 
+ mu <- post$a[s] + post$b[s]*cars$speed # this function calcuate the mu (average speed) using the formula & data from posterior (see above model), give 50 values 
+ dnorm(cars$dist, mu, post$sigma[s], log = TRUE) # for each dist in cars, what is the probability of observaing that dist with the mean of mu and stdv of sigma[s], and then get the log of that probability...  
 })
 head(cars) 
 dim(cars)
