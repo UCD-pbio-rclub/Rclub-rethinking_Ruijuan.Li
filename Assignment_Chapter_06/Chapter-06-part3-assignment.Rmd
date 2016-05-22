@@ -1,0 +1,203 @@
+---
+title: "Chapter-06-part3-assignment"
+author: "Ruijuan Li"
+date: "May 21, 2016"
+output:
+  html_document:
+    keep_md: yes
+  pdf_document: default
+---
+
+# 6M2
+```{r}
+# Explain the difference between model selection and model averaging. What information is lost under model selection? What information is lost under model averaging? 
+
+# model selection means choosing the model w/ the lowest AIC/DIC/WAIC value and the discarding the others
+# model averaging means using DIC/WAIC to construct a posterior predictive distribution that exploit what we know about relative accuary of the models (don't understand thouroughly...)
+
+# under model selection, the info about relative model accuracy contained in the differences among the AIC/DIC/WAIC values are discarded. (don't understand thouroughly...)
+
+# under model averaging ... ??? (come back later...)
+```
+
+# 6M3
+```{r}
+library(rethinking)
+data(cars)
+m <- map(
+  alist(
+    dist ~ dnorm(mu, sigma),
+    mu <- a + b*speed,
+    a ~ dnorm(0, 100),
+    b ~ dnorm(0, 10),
+    sigma ~ dunif(0, 30)
+  ), data = cars)
+
+DIC(m) # 419.5488
+WAIC(m) # 420.6079
+
+# with smaller number of prior 
+cars.small <- cars[1:25,]
+m <- map(
+  alist(
+    dist ~ dnorm(mu, sigma),
+    mu <- a + b*speed,
+    a ~ dnorm(0, 100),
+    b ~ dnorm(0, 10),
+    sigma ~ dunif(0, 30)
+  ), data = cars.small)
+DIC(m) # 205.9512
+WAIC(m) # 210.4056
+```
+
+# 6M4
+```{r}
+# What happens to the effective number of parameters, as measured by DIC or WAIC, as a prior becomes more concentrated? Why? Perform some experiments, if you are not sure. 
+
+# As a prior becomes more concentrated, which means priors becomes overly informative, under this case, there might be problem of underfitting, because the model learns too little from the training data. However, the same number of effective parameters should still be obtained by DIC or WAIC (see figure 6.9 left). 
+
+data(cars)
+m.cocentrated <- map(
+  alist(
+    dist ~ dnorm(mu, sigma),
+    mu <- a + b*speed,
+    a ~ dnorm(0, 10),
+    b ~ dnorm(0, 1),
+    sigma ~ dunif(0, 30)
+  ), data = cars)
+
+DIC(m) # 206
+WAIC(m) # 212
+
+# almost no change in DIC & WAIC values, so --> not much change in effective number of parameters...
+```
+
+# hard 
+```{}
+# load data
+data(Howell1)
+d <- Howell1
+head(d)
+dim(d) # 544
+d$age <- (d$age - mean(d$age))/sd(d$age)
+set.seed(1000)
+i <- sample(1:nrow(d), size=nrow(d)/2)
+i
+length(i) # 272 
+?sample # takes a sample of the specified size from the elements of x using either w/ or w/ repleacement
+d1 <- d[i, ]
+head(d1) 
+dim(d1)
+d2 <- d[-i, ] # split d randomly into d1 and d2 
+
+# fit models w/ different number of parameters
+height.start <- mean(d1$height) 
+sigma.start <- log(sd(d$height))
+
+m6H1.1 <- map(
+ alist(
+  height ~ dnorm(mu, exp(log.sigma)), 
+  mu <- a + b1*age # understand a here 
+ ), data = d1, start = list(a=height.start, b1=0, log.sigma = sigma.start)) 
+
+m6H1.2 <- map(
+ alist(
+  height ~ dnorm(mu, exp(log.sigma)), 
+  mu <- a + b1*age + b2*age^2
+ ), data = d1, start = list(a=height.start, b1=0, b2=0, log.sigma = sigma.start)) 
+
+m6H1.3 <- map(
+ alist(
+  height ~ dnorm(mu, exp(log.sigma)), 
+  mu <- a + b1*age + b2*age^2 + b3*age^3
+ ), data = d1, start = list(a=height.start, b1=0, b2=0, b3=0, log.sigma = sigma.start)) 
+
+m6H1.4 <- map(
+ alist(
+  height ~ dnorm(mu, exp(log.sigma)), 
+  mu <- a + b1*age + b2*age^2 + b3*age^3 + b4*age^4
+ ), data = d1, start = list(a=height.start, b1=0, b2=0, b3=0, b4=0, log.sigma = sigma.start)) 
+
+m6H1.5 <- map(
+ alist(
+  height ~ dnorm(mu, exp(log.sigma)), 
+  mu <- a + b1*age + b2*age^2 + b3*age^3 + b4*age^4 + b5*age^5
+ ), data = d1, start = list(a=height.start, b1=0, b2=0, b3=0, b4=0, b5=0, log.sigma = sigma.start)) 
+
+m6H1.6 <- map(
+ alist(
+  height ~ dnorm(mu, exp(log.sigma)), 
+  mu <- a + b1*age + b2*age^2 + b3*age^3 + b4*age^4 + b5*age^5 + b6*age^6
+ ), data = d1, start = list(a=height.start, b1=0, b2=0, b3=0, b4=0, b5=0, b6=0, log.sigma = sigma.start)) 
+```
+
+# 6H1
+```{r}
+compare(m6H1.1, m6H1.2, m6H1.3, m6H1.4, m6H1.5, m6H1.6)
+# m6H1.4 is the best model based on the model ranking and WAIC weights
+# A model's weight is an estimate of the probability that the model will make the best predictions on new data, conditional on the set of models considered. 
+```
+
+# 6H2
+```{r}
+# For each model, produce a plot with model averaged mean and 97% confidence interval of the mean, superimposed on the raw data. How do predictions differ across models? (refer to chapter 4.4 P92)
+age.seq <- seq(-2, 3, by = 0.1) # get age sample 
+for(model in ls(pattern="^m6H1.[1-6]$")) { # get from Julin... 
+  mu <- link(get(model), data = data.frame(age=age.seq)) # compute height mean/model average mean for different age using model
+  dim(mu)
+  mu.mean <- apply(mu, 2, mean)
+  mu
+  mu.HPDI <- apply(mu, 2, HPDI, prob=0.97)
+  mu.HPDI
+  plot(d1$age, d1$height, xlim=c(-2, 3), ylim=range(d$height)) # the raw data
+  lines(age.seq, mu.mean) # the mean mu for each age
+  shade(mu.HPDI, age.seq) # the shaded region for 97% HPDI 
+}
+?get # ask!!! 
+``` 
+
+# 6H3
+```{r}
+# Now also plot the model averaged predictions, across all models. In what ways do the averaged predictions differ from the predictions of the model with the lowest WAIC value? (about model averaging, chapter 6.5, R code 6.29 & 6.30)
+# the best model 
+age.seq <- seq(-2, 3, length.out = 272)
+d.predict <- list(
+  height = rep(0, 272),
+  age = age.seq
+)
+pred.m6H1.4 <- link(m6H1.4, data = d.predict)
+mu <- apply(pred.m6H1.4, 2, mean)
+mu.HPDI <- apply(pred.m6H1.4, 2, HPDI, prob=0.97)
+
+plot(height ~ age, d1, col=rangi2)
+lines(age.seq, mu) # something wrong here 
+shade(mu.HPDI, age.seq)
+
+# model averaging 
+height.ensemble <- ensemble(m6H1.1, m6H1.2, m6H1.3, m6H1.4, m6H1.5, m6H1.6, data = d.predict) # why d.predict here??? 
+mu.ensemble.mean <- apply(height.ensemble$link, 2, mean)
+mu.ensemble.HPDI <- apply(height.ensemble$link, 2, HPDI, prob=0.97)
+plot(d1$age, d1$height)
+lines(d.predict$age, mu.ensemble.mean) 
+shade(mu.ensemble.HPDI, d.predict$age)  
+
+# how to compre these two to see the difference... 
+```
+
+# 6H4
+```{}
+
+```
+
+# 6H5
+```{}
+
+```
+
+# 6H6
+```{}
+
+```
+
+
+
