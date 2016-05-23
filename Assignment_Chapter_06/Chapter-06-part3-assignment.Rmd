@@ -73,7 +73,7 @@ WAIC(m) # 212
 ```
 
 # hard 
-```{}
+```{r}
 # load data
 data(Howell1)
 d <- Howell1
@@ -185,17 +185,17 @@ shade(mu.ensemble.HPDI, d.predict$age)
 ```
 
 # 6H4
-```{}
+```{r}
 
 ```
 
 # 6H5
-```{}
+```{r}
 
 ```
 
 # 6H6
-```{}
+```{r}
 
 ```
 
