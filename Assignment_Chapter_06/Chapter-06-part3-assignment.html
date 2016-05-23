@@ -149,9 +149,9 @@ m &lt;- map(
   ), data = cars)
 
 DIC(m) # 419.5488</code></pre>
-<pre><code>## [1] 419.1031
+<pre><code>## [1] 419.3132
 ## attr(,&quot;pD&quot;)
-## [1] 2.972832</code></pre>
+## [1] 3.077808</code></pre>
 <pre class="r"><code>WAIC(m) # 420.6079</code></pre>
 <pre><code>## Constructing posterior predictions</code></pre>
 <pre><code>## [ 100 / 1000 ]
@@ -164,13 +164,13 @@ DIC(m) # 419.5488</code></pre>
 [ 800 / 1000 ]
 [ 900 / 1000 ]
 [ 1000 / 1000 ]</code></pre>
-<pre><code>## [1] 420.9952
+<pre><code>## [1] 420.8394
 ## attr(,&quot;lppd&quot;)
-## [1] -206.4231
+## [1] -206.4692
 ## attr(,&quot;pWAIC&quot;)
-## [1] 4.074452
+## [1] 3.950541
 ## attr(,&quot;se&quot;)
-## [1] 14.16952</code></pre>
+## [1] 13.98535</code></pre>
 <pre class="r"><code># with smaller number of prior 
 cars.small &lt;- cars[1:25,]
 m &lt;- map(
@@ -182,9 +182,9 @@ m &lt;- map(
     sigma ~ dunif(0, 30)
   ), data = cars.small)
 DIC(m) # 205.9512</code></pre>
-<pre><code>## [1] 206.1654
+<pre><code>## [1] 206.4233
 ## attr(,&quot;pD&quot;)
-## [1] 3.292535</code></pre>
+## [1] 3.421549</code></pre>
 <pre class="r"><code>WAIC(m) # 210.4056</code></pre>
 <pre><code>## Constructing posterior predictions</code></pre>
 <pre><code>## [ 100 / 1000 ]
@@ -197,13 +197,13 @@ DIC(m) # 205.9512</code></pre>
 [ 800 / 1000 ]
 [ 900 / 1000 ]
 [ 1000 / 1000 ]</code></pre>
-<pre><code>## [1] 212.5658
+<pre><code>## [1] 211.6496
 ## attr(,&quot;lppd&quot;)
-## [1] -99.43032
+## [1] -99.39186
 ## attr(,&quot;pWAIC&quot;)
-## [1] 6.852587
+## [1] 6.432953
 ## attr(,&quot;se&quot;)
-## [1] 18.97121</code></pre>
+## [1] 18.43365</code></pre>
 </div>
 <div id="m4" class="section level1">
 <h1>6M4</h1>
@@ -222,9 +222,9 @@ m.cocentrated &lt;- map(
   ), data = cars)
 
 DIC(m) # 206</code></pre>
-<pre><code>## [1] 205.9952
+<pre><code>## [1] 206.2306
 ## attr(,&quot;pD&quot;)
-## [1] 3.207438</code></pre>
+## [1] 3.325176</code></pre>
 <pre class="r"><code>WAIC(m) # 212</code></pre>
 <pre><code>## Constructing posterior predictions</code></pre>
 <pre><code>## [ 100 / 1000 ]
@@ -237,13 +237,13 @@ DIC(m) # 206</code></pre>
 [ 800 / 1000 ]
 [ 900 / 1000 ]
 [ 1000 / 1000 ]</code></pre>
-<pre><code>## [1] 211.405
+<pre><code>## [1] 213.2827
 ## attr(,&quot;lppd&quot;)
-## [1] -99.43887
+## [1] -99.41733
 ## attr(,&quot;pWAIC&quot;)
-## [1] 6.263618
+## [1] 7.22404
 ## attr(,&quot;se&quot;)
-## [1] 18.01272</code></pre>
+## [1] 19.51749</code></pre>
 <pre class="r"><code># almost no change in DIC &amp; WAIC values, so --&gt; not much change in effective number of parameters...</code></pre>
 </div>
 <div id="hard" class="section level1">
