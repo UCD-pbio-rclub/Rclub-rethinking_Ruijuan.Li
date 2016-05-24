@@ -17,7 +17,7 @@ output:
 
 # under model selection, the info about relative model accuracy contained in the differences among the AIC/DIC/WAIC values are discarded. (don't understand thouroughly...)
 
-# under model averaging ... ??? (come back later...)
+# under model averaging, we lost the 
 ```
 
 # 6M3
@@ -92,7 +92,7 @@ d2 <- d[-i, ] # split d randomly into d1 and d2
 
 # fit models w/ different number of parameters
 height.start <- mean(d1$height) 
-sigma.start <- log(sd(d$height))
+sigma.start <- log(sd(d1$height))
 
 m6H1.1 <- map(
  alist(
@@ -139,7 +139,7 @@ compare(m6H1.1, m6H1.2, m6H1.3, m6H1.4, m6H1.5, m6H1.6)
 ```
 
 # 6H2
-```{r}
+```{r, results='hide'}
 # For each model, produce a plot with model averaged mean and 97% confidence interval of the mean, superimposed on the raw data. How do predictions differ across models? (refer to chapter 4.4 P92)
 age.seq <- seq(-2, 3, by = 0.1) # get age sample 
 for(model in ls(pattern="^m6H1.[1-6]$")) { # get from Julin... 
@@ -153,11 +153,13 @@ for(model in ls(pattern="^m6H1.[1-6]$")) { # get from Julin...
   lines(age.seq, mu.mean) # the mean mu for each age
   shade(mu.HPDI, age.seq) # the shaded region for 97% HPDI 
 }
-?get # ask!!! 
+?get # get the content of the specified object  
+?assign # assign a value to a name 
+# for markdown, adding results=hide help you hide the text but only show you the plot. (chunk options) 
 ``` 
 
 # 6H3
-```{r}
+```{r, results='hide'}
 # Now also plot the model averaged predictions, across all models. In what ways do the averaged predictions differ from the predictions of the model with the lowest WAIC value? (about model averaging, chapter 6.5, R code 6.29 & 6.30)
 # the best model 
 age.seq <- seq(-2, 3, length.out = 272)
@@ -165,13 +167,6 @@ d.predict <- list(
   height = rep(0, 272),
   age = age.seq
 )
-pred.m6H1.4 <- link(m6H1.4, data = d.predict)
-mu <- apply(pred.m6H1.4, 2, mean)
-mu.HPDI <- apply(pred.m6H1.4, 2, HPDI, prob=0.97)
-
-plot(height ~ age, d1, col=rangi2)
-lines(age.seq, mu) # something wrong here 
-shade(mu.HPDI, age.seq)
 
 # model averaging 
 height.ensemble <- ensemble(m6H1.1, m6H1.2, m6H1.3, m6H1.4, m6H1.5, m6H1.6, data = d.predict) # why d.predict here??? 
@@ -180,23 +175,82 @@ mu.ensemble.HPDI <- apply(height.ensemble$link, 2, HPDI, prob=0.97)
 plot(d1$age, d1$height)
 lines(d.predict$age, mu.ensemble.mean) 
 shade(mu.ensemble.HPDI, d.predict$age)  
-
-# how to compre these two to see the difference... 
 ```
 
 # 6H4
 ```{r}
+# Compute the test-sample deviance for each model. (refer to R code 6.11)
+# for(model in ls(pattern="^m6H1.[1-6]$")) {  
+#  theta <- coef(get(model)) # extract MAP estimates 
+  # below calcualte the deviance for test-sample 
+#  dev <- (-2)*sum(dnorm(d2$height, 
+#                        mean = theta[1]+theta[2]*d2$age,
+#                        sd = theta[3],
+#                        log = TRUE))
+#  print(dev)
+#}
+#head(d2)
+
+# the above is refering to R code 6.11, however it doesn't work; below is from Julin, it dosn't work for me either... 
+
+# models <- ls(pattern="^m6H1.[1-6]$")
+# test.dev <- sapply(models,function(m) {
+#   model <- get(m)
+#   input <- as.list(coef(model))
+#   input$age <- d2$age
+#   equation <- model@links[[1]][[2]] 
+#   mu <- eval(parse(text=equation),envir = input)
+#   dev <- -2*sum(dnorm(d2$height,mu,input$sigma,log=T))
+#   dev
+# })
+# test.dev
 
 ```
 
 # 6H5
 ```{r}
-
+# Based on Julin's test, both test-deviance & WAIC give the smallest value for m6H1.4, so WAIC does a good job of estimating the test deviance. 
 ```
 
 # 6H6
 ```{r}
+# fit the model using stronger regularizing priors 
+m6H1.7 <- map(
+ alist(
+  height ~ dnorm(mu, exp(log.sigma)), 
+  mu <- a + b1*age + b2*age^2 + b3*age^3 + b4*age^4 + b5*age^5 + b6*age^6, 
+  b1 ~ dnorm(0, 5),
+  b2 ~ dnorm(0, 5),
+  b3 ~ dnorm(0, 5),
+  b4 ~ dnorm(0, 5),
+  b5 ~ dnorm(0, 5),
+  b6 ~ dnorm(0, 5)
+ ), data = d1, start = list(a=height.start, log.sigma = sigma.start)) 
 
+# report the MAP estimates 
+WAIC(m6H1.7) # 
+
+# plot the implied predictions 
+age.seq <- seq(-2, 3, by = 0.1) # get age sample 
+
+mu <- link(m6H1.7, data = data.frame(age=age.seq)) # compute height mean/model average mean for different age using model
+mu.mean <- apply(mu, 2, mean)
+mu.HPDI <- apply(mu, 2, HPDI, prob=0.97)
+plot(d1$age, d1$height, xlim=c(-2, 3), ylim=range(d$height)) # the raw data
+lines(age.seq, mu.mean) # the mean mu for each age
+shade(mu.HPDI, age.seq) # the shaded region for 97% HPDI 
+
+# compute out-of-sample deviance using the data in d2
+theta <- coef(m6H1.7) # extract MAP estimates 
+dev <- (-2)*sum(dnorm(d2$height, 
+                mean = theta[1]+theta[2]*d2$age,
+                sd = theta[3],
+                log = TRUE))
+dev # 9327.714 # not sure whether this is right... 
+
+# 
+compare(m6H1.6, m6H1.7) # based on this compare result, the 7th model looks better... 
+# I still didn't get the out-of-sample deviance calculated correctly... 
 ```
 
 
