@@ -1,0 +1,73 @@
+# Chapter-07-part1-assignment
+Ruijuan Li  
+May 25, 2016  
+
+# 7E1
+
+```r
+# For each of the causal relationships below, name a hypothetical third variable that would lead to an interaction effect.
+
+# (1)	Bread dough rises because of yeast. temperature 
+
+# (2)	Education leads to higher income. major 
+
+# (3)	Gasoline makes a car go. a working engine 
+```
+
+# 7E2
+
+```r
+# Which of the following explanations invokes an interaction? 1 
+
+# (1)	Caramelizing onions requires cooking over low heat and making sure the onions do not dry out. 
+
+# (2)	A car will go faster when it has more cylinders or when it has a better fuel injector.
+
+# (3)	Most people acquire their political beliefs from their parents, unless they get them instead from their friends.
+
+# (4)	Intelligent animal species tend to be either highly social or have manipulative appendages (hands, tentacles, etc.). 
+```
+
+#7E3
+
+```r
+# For each of the explanations in 7E2, write a linear model that expresses the stated relationship. 
+
+# 1) onion.taste <- a + bt*temperature + bm*moisture.level.onion + btm*temperature*moisture.level.onion
+```
+
+#7M1
+
+```r
+# Recall the tulips example from the chapter. Suppose another set of treatments adjusted the temperature in the greenhouse over two levels: cold and hot. The data in the chapter were collected at the cold temperature. You find none of the plants grown under the hot temperature developed any blooms at all, regardless of the water and shade levels. Can you explain this result in terms of interactions between water, shade, and temperature? 
+
+# Plant growth is dependent upon three factors: water, shade, and temperatures, and the effect of water and shade on plant growth is dependent upon the temperature level in the greenhouse.  
+```
+
+#7M2
+
+```r
+# Can you invent a regression equation that would make the bloom size zero, whenever the temperature is hot? (the concept of dummy & centered variable???)
+
+# bloom.size = a + bs*shade.c + bw*water.c + bsw*shade.c*water.c (need to work on this later... )  
+```
+
+#7M3
+
+```r
+# In parts of North America, ravens depend upon wolves for their food. This is because ravens are carnivorous but cannot usually kill or open carcasses of prey. Wolves however can and do kill and tear open animals, and they tolerate ravens co-feeding at their kills. This species relationship is generally described as a “species interaction.” Can you invent a hypothetical set of data on raven population size in which this relationship would manifest as a statistical interaction? Do you think the biological interaction could be linear? Why or why not? 
+# How to understand linear interaction? 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
