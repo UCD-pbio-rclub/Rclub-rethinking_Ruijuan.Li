@@ -175,11 +175,11 @@ coeftab(m7.5b, m7H3)
 # the old model 
 rugged.seq <- seq(-1, 8, by = 0.25)
 
-mu.Africa <- link(m7.5, data = data.frame(cont_africa=1, rugged= rugged.seq))
+mu.Africa <- link(m7.5b, data = data.frame(cont_africa=1, rugged= rugged.seq))
 mu.Africa.mean <- apply(mu.Africa, 2, mean)
 mu.Africa.PI <- apply(mu.Africa, 2, PI, prob= 0.97)
 
-mu.NotAfrica <- link(m7.5, data = data.frame(cont_africa=0, rugged= rugged.seq))
+mu.NotAfrica <- link(m7.5b, data = data.frame(cont_africa=0, rugged= rugged.seq))
 mu.NotAfrica.mean <- apply(mu.NotAfrica, 2, mean)
 mu.NotAfrica.PI <- apply(mu.NotAfrica, 2, PI, prob= 0.97)
 
