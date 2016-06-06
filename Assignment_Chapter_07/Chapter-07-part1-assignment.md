@@ -34,6 +34,8 @@ May 25, 2016
 # For each of the explanations in 7E2, write a linear model that expresses the stated relationship. 
 
 # 1) onion.taste <- a + bt*temperature + bm*moisture.level.onion + btm*temperature*moisture.level.onion
+
+# onion.taste ~ temperature*moisture.level.onion 
 ```
 
 #7M1
@@ -49,7 +51,8 @@ May 25, 2016
 ```r
 # Can you invent a regression equation that would make the bloom size zero, whenever the temperature is hot? (the concept of dummy & centered variable???)
 
-# bloom.size = a + bs*shade.c + bw*water.c + bsw*shade.c*water.c (need to work on this later... )  
+# bloom.size = shade: cool + water : cool + shade:water:cool 
+# no main effect here ... 
 ```
 
 #7M3
@@ -62,7 +65,7 @@ May 25, 2016
 #7H1 
 
 ```r
-# Return to the data(tulips) example in the chapter. Now include the bed variable as a predictor in the interaction model. Don't interact bed with the other predictors; just include it as a main effect. Note that bed is categorical. So to use it properly, you will need to either construct dummy variables or rather an index variable, as explained in Chapter 6. 
+# Return to the data(tulips) example in the chapter. Now include the bed variable as a predictor in the interaction model. Don't interact bed with the other predictors; just include it as a main effect. Note that bed is categorical. So to use it properly, you will need to either construct dummy variables or rather an index variable, as explained in Chapter 5. 
 
 library(rethinking)
 ```
@@ -200,13 +203,13 @@ WAIC(m7H1)
 ```
 
 ```
-## [1] 295.805
+## [1] 298.9507
 ## attr(,"lppd")
-## [1] -141.443
+## [1] -141.4266
 ## attr(,"pWAIC")
-## [1] 6.459534
+## [1] 8.048733
 ## attr(,"se")
-## [1] 10.16693
+## [1] 11.11283
 ```
 
 ```r
@@ -231,13 +234,13 @@ WAIC(m7.9)
 ```
 
 ```
-## [1] 296.2149
+## [1] 296.2286
 ## attr(,"lppd")
-## [1] -141.4016
+## [1] -141.3489
 ## attr(,"pWAIC")
-## [1] 6.705828
+## [1] 6.76546
 ## attr(,"se")
-## [1] 10.46896
+## [1] 10.65193
 ```
 
 ```r
@@ -245,9 +248,9 @@ compare(m7H1, m7.9) # which one is better? hard to say...
 ```
 
 ```
-##       WAIC pWAIC dWAIC weight    SE dSE
-## m7H1 295.2   6.1   0.0   0.64  9.85  NA
-## m7.9 296.4   6.8   1.2   0.36 10.57 0.9
+##       WAIC pWAIC dWAIC weight    SE  dSE
+## m7.9 295.9   6.5   0.0   0.55 10.13   NA
+## m7H1 296.3   6.8   0.4   0.45 10.53 0.57
 ```
 
 ```r
@@ -756,9 +759,9 @@ compare(m7H3, m7H3.1, m7H3.2) # 7H3 looks much better
 
 ```
 ##         WAIC pWAIC dWAIC weight    SE   dSE
-## m7H3   467.6   5.2   0.0   0.96 14.96    NA
-## m7H3.2 473.9   4.1   6.3   0.04 15.14  6.15
-## m7H3.1 536.8   2.7  69.1   0.00 13.31 15.15
+## m7H3   467.8   5.3   0.0   0.97 15.02    NA
+## m7H3.2 474.9   4.6   7.1   0.03 15.24  6.25
+## m7H3.1 536.8   2.7  68.9   0.00 13.24 15.15
 ```
 
 ```r
