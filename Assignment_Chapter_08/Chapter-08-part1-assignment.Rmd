@@ -1,0 +1,35 @@
+---
+title: "Chapter-08-part1-assignment"
+author: "Ruijuan Li"
+date: "June 8, 2016"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+# 8E1
+```{r}
+# Which of the following is a requirement of the simple Metropolis algorithm?
+# (1)	The parameters must be discrete.
+# (2)	The likelihood function must be Gaussian.
+# (3)	The proposal distribution must be symmetric.
+
+# (3)
+```
+
+# 8E2
+```{r}
+# Gibbs sampling is more efficient than the Metropolis algorithm. How does it achieve this extra efficiency? Are there any limitations to the Gibbs sampling strategy? 
+
+# Gibbs sampling can get a good estimate of the posterior with many fewer sampling using adaptive proposals, in which the distribution of proposed parameter values adjust itself intelligently, depending upon the parameter values at the moment. How Gibbs sampling computes adaptive proposals depends upon using conjugate pairs (pariticular combination of prior distributions and likelihoods), but some conjugate prior can be silly, also as models becomes more complex and the parameters increase, Gibbs sampling becomes shockingly inefficient. 
+
+# Gibbs sampling gains efficiency by reducing randomness and exploiting knowledge of the target distribution. 
+```
+
+# 8E3 
+```{r}
+# Which sort of parameters can Hamiltonian Monte Carlo not handle? Can you explain why? 
+
+# HMC cannot handle discrete paramters, because it runs a physics simulation, which requires vector of parameters giving positions of a little frctionless particle.  
+```
+
