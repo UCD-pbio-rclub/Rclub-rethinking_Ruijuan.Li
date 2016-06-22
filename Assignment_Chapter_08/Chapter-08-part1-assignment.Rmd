@@ -33,3 +33,8 @@ output:
 # HMC cannot handle discrete paramters, because it runs a physics simulation, which requires vector of parameters giving positions of a little frctionless particle.  
 ```
 
+
+
+
+
+
