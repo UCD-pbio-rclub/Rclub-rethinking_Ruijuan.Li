@@ -1,0 +1,46 @@
+---
+title: "Chapter-08-part3-assignment"
+author: "Ruijuan Li"
+date: "June 22, 2016"
+output: 
+  html_document: 
+    keep_md: yes
+---
+# only include final result, no processing code chunks!!! refer to Julin's code... 
+# review 7H4
+```{r}
+
+```
+
+# 8H1
+```{r}
+
+```
+
+# 8H2
+```{r}
+
+```
+
+# 8H3 
+```{r}
+
+```
+
+# 8H4
+```{r}
+
+```
+
+# 8H5
+```{r}
+
+```
+
+# 8H6 
+```{r}
+
+```
+
+
+
