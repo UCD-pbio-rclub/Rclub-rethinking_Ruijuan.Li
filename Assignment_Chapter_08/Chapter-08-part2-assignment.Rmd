@@ -1,0 +1,169 @@
+---
+title: "Chapter-08-part2-assignment"
+author: "Ruijuan Li"
+date: "June 22, 2016"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+# 8E4 
+```{r}
+# Explain the difference between the effective number of samples, n_eff as calculated by Stan, and the actual number of samples. 
+
+# effective number of samples is an estimate of the number of independent samples from the posterior distribution (stan chains are autocorrleated, so that sequential samples are not entirely independent); n_eff calculated by Stan is an estimate of effective number of samples; actual number of samples is the number of all samples no matter whether they are dependent or independent.    
+```
+
+# 8E5
+```{r}
+# Which value should Rhat approach, when a chain is sampling the posterior distribution correctly? 
+# Rhat is a complicated estimate of the convergence of the Markov chain to the target distribution. It should approach 1 when all is well. 
+```
+
+# 8E6
+```{r}
+# Sketch a good trace plot for a Markov chain, one that is effectively sampling from the posterior distribution. What is good about its shape? Then sketch a trace plot for a malfunctioning Markov chain. What about its shape indicates malfunction? 
+
+# a trace plot generated from posterior distribution of effective sampling has 2 characters: stationarity and good mixing. stationarity refers to the path staying within the posterior distribution, and well-mixing chain means that each successive sample within each parameter is not highly correlated with the sample before it. Whereas a trace plot for a malfunctioning Markov chain lackes these 2 characters. 
+```
+
+# 8M1
+```{r}
+# Re-estimate the terrain ruggedness model from the chapter, but now using a uniform prior and an exponential prior for the standard deviation, sigma. The uniform prior should be dunif(0,10) and the exponential should be dexp(1). Do the different priors have any detectible influence on the posterior distribution? 
+
+library(rethinking)
+data("rugged")
+d <- rugged
+d$log_gdp <- log(d$rgdppc_2000)
+dd <- d[complete.cases(d$rgdppc_2000), ]
+
+dd.trim <- dd[, c("log_gdp", "rugged", "cont_africa")]
+str(dd.trim)
+
+m8M1.1 <- map2stan(
+  alist(
+    log_gdp ~ dnorm(mu, sigma),
+    mu <- a + bR*rugged + bA*cont_africa + bAR*rugged*cont_africa,
+    a ~ dnorm(0, 100),
+    bR ~ dnorm(0, 10),
+    bA ~ dnorm(0, 10),
+    bAR ~ dnorm(0, 10),
+    sigma ~ dunif(0, 10)
+  ), data = dd.trim) 
+
+m8M1.2 <- map2stan(
+  alist(
+    log_gdp ~ dnorm(mu, sigma),
+    mu <- a + bR*rugged + bA*cont_africa + bAR*rugged*cont_africa,
+    a ~ dnorm(0, 100),
+    bR ~ dnorm(0, 10),
+    bA ~ dnorm(0, 10),
+    bAR ~ dnorm(0, 10),
+    sigma ~ dexp(1)
+  ), data = dd.trim) 
+
+precis(m8M1.1)
+precis(m8M1.2)
+# very little effect, but it seems exp(1) works better because it gives 1 to all Rhat values 
+```
+
+# 8M2
+```{r}
+# The Cauchy and exponential priors from the terrain ruggedness model are very weak. They can be made more informative by reducing their scale. Compare the dcauchy and dexp priors for progressively smaller values of the scaling parameter. As these priors become stronger, how does each influence the posterior distribution? 
+
+m8M2.1 <- map2stan(
+  alist(
+    log_gdp ~ dnorm(mu, sigma),
+    mu <- a + bR*rugged + bA*cont_africa + bAR*rugged*cont_africa,
+    a ~ dnorm(0, 100),
+    bR ~ dnorm(0, 10),
+    bA ~ dnorm(0, 10),
+    bAR ~ dnorm(0, 10),
+    sigma ~ dexp(1)
+  ), data = dd.trim) 
+
+m8M2.2 <- map2stan(
+  alist(
+    log_gdp ~ dnorm(mu, sigma),
+    mu <- a + bR*rugged + bA*cont_africa + bAR*rugged*cont_africa,
+    a ~ dnorm(0, 100),
+    bR ~ dnorm(0, 10),
+    bA ~ dnorm(0, 10),
+    bAR ~ dnorm(0, 10),
+    sigma ~ dexp(0.5) # how to reduce the scale for exponential prior? 
+  ), data = dd.trim) 
+
+precis(m8M2.1)
+precis(m8M2.2) # reduce the scale works better? 
+
+m8M2.3 <- map2stan(
+  alist(
+    log_gdp ~ dnorm(mu, sigma),
+    mu <- a + bR*rugged + bA*cont_africa + bAR*rugged*cont_africa,
+    a ~ dnorm(0, 100),
+    bR ~ dnorm(0, 10),
+    bA ~ dnorm(0, 10),
+    bAR ~ dnorm(0, 10),
+    sigma ~ dcauchy(0,2)
+  ), data = dd.trim) 
+
+m8M2.4 <- map2stan(
+  alist(
+    log_gdp ~ dnorm(mu, sigma),
+    mu <- a + bR*rugged + bA*cont_africa + bAR*rugged*cont_africa,
+    a ~ dnorm(0, 100),
+    bR ~ dnorm(0, 10),
+    bA ~ dnorm(0, 10),
+    bAR ~ dnorm(0, 10),
+    sigma ~ dcauchy(0,1)
+  ), data = dd.trim) 
+
+precis(m8M2.3)
+precis(m8M2.4) # 
+```
+
+# 8M3
+```{r}
+# Re-estimate one of the Stan models from the chapter, but at different numbers of warmup iterations. Be sure to use the same number of sampling iterations in each case. Compare the n_eff values. How much warmup is enough? (how to know how much warmup is enough?) 
+
+y <- c(-1,1)
+m8M3.1 <- map2stan(
+  alist(
+    y ~ dnorm(mu, sigma),
+    mu <- alpha,
+    alpha ~ dnorm(1, 10),
+    sigma ~ dcauchy(0, 1)
+  ), 
+  data = list(y=y), start = list(alpha=0, sigma=1),
+  chains = 2, iter = 4000, warmup = 1000)
+
+m8M3.2 <- map2stan(
+  alist(
+    y ~ dnorm(mu, sigma),
+    mu <- alpha,
+    alpha ~ dnorm(1, 10),
+    sigma ~ dcauchy(0, 1)
+  ), 
+  data = list(y=y), start = list(alpha=0, sigma=1),
+  chains = 2, iter = 4000, warmup = 2000)
+
+precis(m8M3.1)
+precis(m8M3.2) 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
