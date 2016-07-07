@@ -6,25 +6,178 @@ output:
   html_document: 
     keep_md: yes
 ---
-# only include final result, no processing code chunks!!! refer to Julin's code... 
-# review 7H4
-```{r}
-
-```
-
 # 8H1
 ```{r}
+knitr::opts_chunk$set(echo = TRUE,cache=TRUE,autodep = TRUE) # get this from Julin
+```
 
+```{r}
+# run the model below and then inspect the posterior distribution and explain what it is accomplishing. 
+library(rethinking)
+library(ggplot2)
+mp <- map2stan(
+  alist(
+    a ~ dnorm(0, 1), 
+    b ~ dcauchy(0, 1) 
+  ), 
+  data = list(y=1), # data used 
+  start = list(a=0, b=0), # start value 
+  iter = 1e4, warmup = 100, WAIC = FALSE) # estimate the distribution of a and b using dnorm & dcauchy??? no corrleation between a & b...  
+?dcauchy
+
+post <- extract.samples(mp) # pull out samples from mp 
+str(post) 
+precis(mp)
+pairs(post)
+show(mp)
+
+# compare the samples for the parameters a & b
+plot(mp) # cannot get the trace plot because of error... 
 ```
 
 # 8H2
 ```{r}
+ 
+data("WaffleDivorce")
+d <- WaffleDivorce
 
+# data preparation 
+# standardize predictor
+d$MedianAgeMarriage.s <- (d$MedianAgeMarriage-mean(d$MedianAgeMarriage))/sd(d$MedianAgeMarriage) # preprocess all variable transformation 
+
+colnames(d)
+d.trim.1 <- d[,c("MedianAgeMarriage.s","Divorce")] # make a new trimmed down data frame that contains only the variable to use to fit the model 
+
+# fit model
+m5.1.8H2 <- map2stan(
+  alist(
+    Divorce ~ dnorm(mu, sigma),
+    mu <- a + bA * MedianAgeMarriage.s,
+    a ~ dnorm(10, 10),
+    bA ~ dnorm(0, 1),
+    sigma ~ dunif(0, 10)
+  ), data = d.trim.1)
+
+# data preparation 
+# standardize predictor
+d$Marriage.s <- (d$Marriage - mean(d$Marriage))/sd(d$Marriage) # preprocess all variable transformation 
+
+colnames(d)
+d.trim.2 <- d[,c("Marriage.s","Divorce")] # make a new trimmed down data frame that contains only the variable to use to fit the model 
+
+# fit model
+m5.2.8H2 <- map2stan(
+  alist(
+    Divorce ~ dnorm(mu, sigma),
+    mu <- a + bR * Marriage.s,
+    a ~ dnorm(10, 10),
+    bR ~ dnorm(0, 1),
+    sigma ~ dunif(0, 10)
+  ), data = d.trim.2) 
+
+# data preparation 
+colnames(d)
+d.trim.3 <- d[,c("Marriage.s","Divorce","MedianAgeMarriage.s")] # make a new trimmed down data frame that contains only the variable to use to fit the model 
+
+# fit model
+m5.3.8H2 <- map2stan(
+  alist(
+    Divorce ~ dnorm(mu, sigma),
+    mu <- a + bR*Marriage.s + bA * MedianAgeMarriage.s,
+    a ~ dnorm(10, 10),
+    bR ~ dnorm(0, 1),
+    bA ~ dnorm(0, 1),
+    sigma ~ dunif(0, 10)
+  ), 
+  data = d.trim.3 )
+
+# comapre the models on the basis of WAIC, explain the results. 
+compare(m5.1.8H2, m5.2.8H2, m5.3.8H2)
+
+# based on WAIC, the 1st model is the best model. 
 ```
 
 # 8H3 
 ```{r}
+# go back to the leg length example in chpt 5, and run the code to simulate height and leg lengths for 100 imagined individuals. 
 
+# R code 8.21 
+N <- 100 # number of individuals 
+height <- rnorm(N, 10, 2) # sim total height of each 
+leg_prop <- runif(N, 0.4, 0.5) # leg as proportion of height 
+leg_left <- leg_prop * height + 
+  rnorm(N, 0, 0.02) # sim left leg as proportion + error
+leg_right <- leg_prop * height + 
+  rnorm(N, 0, 0.02) # sim right leg as proportion + error 
+
+d <- data.frame(height, leg_left, leg_right) # combine into data frame 
+
+# fit the model using map2stan using both left and right leg as predictor
+m5.8s <- map2stan(
+  alist(
+    height ~ dnorm(mu, sigma),
+    mu <- a + bl*leg_left + br*leg_right,
+    a ~ dnorm(10, 100),
+    bl ~ dnorm(2, 10),
+    br ~ dnorm(2, 10),
+    sigma ~ dcauchy(0, 1)
+  ), 
+  data=d, chains = 4, 
+  start=list(a=10, bl=0, br=0, sigma=1))
+
+# change the prior for br so that it is strictly positive 
+m5.8s2 <- map2stan(
+  alist(
+    height ~ dnorm(mu, sigma),
+    mu <- a + bl*leg_left + br*leg_right,
+    a ~ dnorm(10, 100),
+    bl ~ dnorm(2, 10),
+    br ~ dnorm(2, 10) & T[0,], # truncate the normal distribution so that it has positive probability only above 0. 
+    sigma ~ dcauchy(0, 1)
+  ), 
+  data=d, chains = 4, 
+  start=list(a=10, bl=0, br=0, sigma=1))
+
+# the original model 
+m5.8 <- map(
+  alist(
+    height ~ dnorm(mu, sigma),
+    mu <- a + bl*leg_left + br*leg_right,
+    a ~ dnorm(10, 100),
+    bl ~ dnorm(2, 10),
+    br ~ dnorm(2, 10),
+    sigma ~ dunif(0, 10)
+  ), 
+  data=d)
+
+# compare the two posteior distribution. what has changed in the posterior distribution of both beta parameters? Can you explain the change induced by the change in prior? 
+
+post.s <- as.data.frame(extract.samples(m5.8s))
+post.s2 <- as.data.frame(extract.samples(m5.8s2))
+post <- as.data.frame(extract.samples(m5.8))
+
+# plot beta parameter posterior distribution density  
+bl <- data.frame(value = c(post.s$bl, post.s2$bl, post$bl),
+                 model = c(rep("maptostan", nrow(post.s)), rep("maptostan.positive", nrow(post.s2)), rep("original", nrow(post))))
+
+pl.bl <- ggplot(data=bl)
+pl.bl <- ggplot(bl, aes(x=value, color = factor(model))) + geom_density()
+pl.bl
+
+br <- data.frame(value = c(post.s$br, post.s2$br, post$br),
+                 model = c(rep("maptostan", nrow(post.s)), rep("maptostan.positive", nrow(post.s2)), rep("original", nrow(post))))
+
+pl.br <- ggplot(data = br)
+pl.br <- ggplot(br, aes(x=value, color = factor(model))) + geom_density()
+pl.br
+
+library(cowplot)
+pl.bl.br<-plot_grid(
+  pl.bl+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="bl"),
+  pl.br+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="br"), 
+  ncol=2, nrow = 1,labels=c("","","",""))
+# how to add figure legend? 
+pl.bl.br
 ```
 
 # 8H4
