@@ -88,7 +88,7 @@ trt.stan <- map2stan(alist(
   data.trt,
   chains = 4)
 
-plot(hyp.stan) # Error in as.double(y) : cannot coerce type 'S4' to vector of type 'double'
+# plot(hyp.stan) # Error in as.double(y) : cannot coerce type 'S4' to vector of type 'double'
 precis(trt.stan)
 # par(mfrow=c(1,1),mfcol=c(1,1))
 # plot(precis(hyp.stan.trans))
@@ -111,7 +111,7 @@ species.stan <- map2stan(alist(
   data.species,
   chains = 4)
 
-plot(species.stan)
+# plot(species.stan)
 precis(species.stan)
 # par(mfrow=c(1,1),mfcol=c(1,1))
 # plot(precis(species.stan))
@@ -138,7 +138,7 @@ species.trt.stan <- map2stan(alist(
   data.species.trt,
   chains = 4)
 
-plot(species.trt.stan)
+# plot(species.trt.stan)
 precis(species.trt.stan)
 # par(mfrow=c(1,1),mfcol=c(1,1))
 # plot(precis(species.trt.stan))
@@ -155,7 +155,7 @@ species.trt.interaction.stan <- map2stan(alist(
   data.species.trt,
   chains = 4)
 
-plot(species.trt.stan)
+# plot(species.trt.stan)
 precis(species.trt.interaction.stan)
 # par(mfrow=c(1,1),mfcol=c(1,1))
 # plot(precis(species.trt.stan))
@@ -245,7 +245,7 @@ trt.stan.trans <- map2stan(alist(
   data.trt,
   chains = 4)
 
-plot(hyp.stan.trans) # Error in as.double(y) : cannot coerce type 'S4' to vector of type 'double'
+# plot(hyp.stan.trans) # Error in as.double(y) : cannot coerce type 'S4' to vector of type 'double'
 precis(trt.stan.trans)
 # par(mfrow=c(1,1),mfcol=c(1,1))
 # plot(precis(hyp.stan.trans))
@@ -268,7 +268,7 @@ species.stan.trans <- map2stan(alist(
   data.species,
   chains = 4)
 
-plot(species.stan)
+# plot(species.stan)
 precis(species.stan.trans)
 # par(mfrow=c(1,1),mfcol=c(1,1))
 # plot(precis(species.stan))
@@ -295,7 +295,7 @@ species.trt.stan.trans <- map2stan(alist(
   data.species.trt,
   chains = 4)
 
-plot(species.trt.stan)
+# plot(species.trt.stan)
 precis(species.trt.stan.trans)
 # par(mfrow=c(1,1),mfcol=c(1,1))
 # plot(precis(species.trt.stan))
@@ -312,7 +312,7 @@ species.trt.interaction.stan.trans <- map2stan(alist(
   data.species.trt,
   chains = 4)
 
-plot(species.trt.stan)
+# plot(species.trt.stan)
 precis(species.trt.interaction.stan.trans)
 # par(mfrow=c(1,1),mfcol=c(1,1))
 # plot(precis(species.trt.stan))
@@ -320,11 +320,11 @@ precis(species.trt.interaction.stan.trans)
 #compare models
 
 compare(trt.stan.trans,species.trt.stan.trans,species.stan.trans, species.trt.interaction.stan.trans)
-plot(compare(trt.stan.trans,species.trt.stan.trans,species.stan.trans, species.trt.interaction.stan.trans))
+# plot(compare(trt.stan.trans,species.trt.stan.trans,species.stan.trans, species.trt.interaction.stan.trans))
 
 coeftab(trt.stan.trans,species.trt.stan.trans,species.stan.trans, species.trt.interaction.stan.trans)
 
-plot(coeftab(trt.stan.trans,species.trt.stan.trans,species.stan.trans, species.trt.interaction.stan.trans))
+# plot(coeftab(trt.stan.trans,species.trt.stan.trans,species.stan.trans, species.trt.interaction.stan.trans))
 
 # what can we say about the treatment effect? 
 
