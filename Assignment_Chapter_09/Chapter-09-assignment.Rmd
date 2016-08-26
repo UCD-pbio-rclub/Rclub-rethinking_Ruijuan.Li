@@ -4,20 +4,21 @@ author: "Ruijuan Li"
 date: "August 22, 2016"
 output: html_document
 ---
-# In class solving of the tomato problem
-# Aug 2, 2016
-# By: Julin, Nicole, Gina, Ruijuan, Xiaoyan, Jessica, Emily
 
+# assignment 
 ```{r}
-# Do a Bayesian analysis of hypocotyl length (hyp) in the attached data sheet.
+# 1) finish chapter 9.  (watch the lectures also if possible).
 # 
-# 1) Does the best model include species, trt, or both?
+# 2a) Redo the tomato hyp analysis (or at least the final model with species and treatment) but using square root transformation (Done). Are model fits improved? (use WAIC to check, compare) Does it change the parameter estimates? (yes)   
 # 
-# 2) Evaluate the hypothesis that trt has an effect on hypocotyl length
+# 2b) Is WAIC an appropriate way to compare the model fits with untransformed and transformed data? (no)  How can you test this? 
 # 
-# If you get stuck early, don't worry, come anyway abd we can work on it in R Club
+# 2c) How do you get sqrt transformed parameter estimates (especially when they are < 1) back on the original scale (I don't know the answer to this) 
+# 
+# 3)  Fit a model with a species by treatment interaction. Which species have a trt response that is different from S. chm? 
 ```
 
+# non transformed data 
 ```{r}
 setwd("~/Desktop/2016_summer/R_club/Assignment_Chapter_09")
 
@@ -70,32 +71,27 @@ data$trt2 <- as.numeric(data$trt)-1 # 0 = H, 1 = L
 
 identical(data$trt2, data$trtL) # the two methods produce the same result. 
 
-#categorical variables for species
-# data2 <- dcast(data,index + hyp + trt2 ~ species, value.var="species",fun.aggregate=length)
-# ?dcast
-# head(data2)
-# tail(data2) # some missing data??? 
-
 #must subset the data frame to contain only the relevant columns
 data.trt <- data[,c("hyp","trt2")]
 
 head(data.trt)
 data.trt
 
+mean(data.trt$hyp)
 # trt model
-hyp.stan <- map2stan(alist(
+trt.stan <- map2stan(alist(
   hyp ~ dnorm(mu,sigma),
-  mu <- a + bT * trt2,
+  mu <- a + bT * trt2, 
   a ~ dnorm(0,100),
   bT ~ dnorm(0,10),
   sigma ~ dunif(0,20)),
   data.trt,
   chains = 4)
 
-plot(hyp.stan)
-precis(hyp.stan)
-par(mfrow=c(1,1),mfcol=c(1,1))
-plot(precis(hyp.stan))
+plot(hyp.stan) # Error in as.double(y) : cannot coerce type 'S4' to vector of type 'double'
+precis(trt.stan)
+# par(mfrow=c(1,1),mfcol=c(1,1))
+# plot(precis(hyp.stan.trans))
 
 head(data)
 
@@ -110,15 +106,15 @@ data.species <- data.species[,c(-2)]
 species.stan <- map2stan(alist(
   hyp ~ dnorm(mu,sigma),
   mu <- bChil*S_chilense + bChmi*S_chmielewskii + bHab*S_habrochaites + bPen * S_pennellii + bPer*S_peruvianum,
-  c(bChil,bChmi,bHab,bPen,bPer) ~ dnorm(33.35,20),
+  c(bChil,bChmi,bHab,bPen,bPer) ~ dnorm(5.7,20), # almost identical results were produced no matter which start value I use 
   sigma ~ dunif(0,20)),
   data.species,
   chains = 4)
 
 plot(species.stan)
 precis(species.stan)
-par(mfrow=c(1,1),mfcol=c(1,1))
-plot(precis(species.stan))
+# par(mfrow=c(1,1),mfcol=c(1,1))
+# plot(precis(species.stan))
 
 # model with species and treatment
 
@@ -144,17 +140,191 @@ species.trt.stan <- map2stan(alist(
 
 plot(species.trt.stan)
 precis(species.trt.stan)
-par(mfrow=c(1,1),mfcol=c(1,1))
-plot(precis(species.trt.stan))
+# par(mfrow=c(1,1),mfcol=c(1,1))
+# plot(precis(species.trt.stan))
+
+# model with species, treatment, and interaction 
+head(data.species.trt)
+
+species.trt.interaction.stan <- map2stan(alist(
+  hyp ~ dnorm(mu,sigma),
+  mu <- a + bT*trt + bChil*S_chilense + bHab*S_habrochaites + bPen * S_pennellii + bPer*S_peruvianum + cTChil*S_chilense*trt + cTHab*S_habrochaites*trt + cTPen*S_pennellii*trt + cTPer*S_peruvianum*trt, 
+  a ~ dnorm(33.35,10),
+  c(bT,bChil,bHab,bPen,bPer,cTChil,cTHab,cTPen,cTPer) ~ dnorm(0,10),
+  sigma ~ dunif(0,20)),
+  data.species.trt,
+  chains = 4)
+
+plot(species.trt.stan)
+precis(species.trt.interaction.stan)
+# par(mfrow=c(1,1),mfcol=c(1,1))
+# plot(precis(species.trt.stan))
 
 #compare models
 
-compare(hyp.stan,species.trt.stan,species.stan)
-plot(compare(hyp.stan,species.trt.stan,species.stan))
+compare(trt.stan,species.trt.stan,species.stan, species.trt.interaction.stan)
+```
 
-coeftab(hyp.stan,species.trt.stan,species.stan)
+# sqrt transformed data 
+```{r}
+setwd("~/Desktop/2016_summer/R_club/Assignment_Chapter_09")
 
-plot(coeftab(hyp.stan,species.trt.stan,species.stan))
+# load the data and libraries
+data <- read.csv("TomatoR2CSHL.csv")
+
+library(rethinking)
+library(ggplot2)
+library(reshape2)
+
+# take a look at the data
+head(data)
+summary(data)
+
+# density plots
+pl <- ggplot(data=data,aes(x=hyp,fill=trt))
+pl <- pl + geom_density()
+pl <- pl + facet_grid(species ~ trt)
+pl
+
+# box plots
+pl <- ggplot(data=data,aes(y=hyp,x=species,fill=trt))
+pl <- pl + geom_boxplot()
+pl
+
+# log2 transformation
+pl <- ggplot(data=data,aes(x=log2(hyp),fill=trt))
+pl <- pl + geom_density()
+pl <- pl + facet_grid(species ~ trt)
+pl + ggtitle("log2 transformed")
+
+# Square root transformation
+pl <- ggplot(data=data,aes(x=sqrt(hyp),fill=trt))
+pl <- pl + geom_density()
+pl <- pl + facet_grid(species ~ trt)
+pl + ggtitle("sqrt transformed")
+
+#normality test
+by(data$hyp,list(data$trt,data$species),shapiro.test) # seperate normality test for each sampling. 
+by(sqrt(data$hyp),list(data$trt,data$species),shapiro.test)
+by(log2(data$hyp),list(data$trt,data$species),shapiro.test)
+#sqrt transformed is best
+
+# sqrt transform data 
+data$hyp_trans <- sqrt(data$hyp)
+head(data)
+
+# categorical variable for trt
+data$trtL <- ifelse(data$trt=="L",1,0)
+
+# alternative way
+levels(data$trt)
+data$trt2 <- as.numeric(data$trt)-1 # 0 = H, 1 = L
+
+identical(data$trt2, data$trtL) # the two methods produce the same result. 
+
+#categorical variables for species
+# data2 <- dcast(data,index + hyp + trt2 ~ species, value.var="species",fun.aggregate=length)
+# ?dcast
+# head(data2)
+# tail(data2) # some missing data??? 
+
+#must subset the data frame to contain only the relevant columns
+data.trt <- data[,c("hyp_trans","trt2")]
+
+head(data.trt)
+data.trt
+
+mean(data.trt$hyp_trans)
+# trt model
+trt.stan.trans <- map2stan(alist(
+  hyp_trans ~ dnorm(mu,sigma),
+  mu <- a + bT * trt2, 
+  a ~ dnorm(0,100),
+  bT ~ dnorm(0,10),
+  sigma ~ dunif(0,20)),
+  data.trt,
+  chains = 4)
+
+plot(hyp.stan.trans) # Error in as.double(y) : cannot coerce type 'S4' to vector of type 'double'
+precis(trt.stan.trans)
+# par(mfrow=c(1,1),mfcol=c(1,1))
+# plot(precis(hyp.stan.trans))
+
+head(data)
+
+# fit a model with species 
+data.species <- data[,c("hyp_trans","species")]
+data.species$id <- 1:nrow(data.species)
+data.species <- dcast(data.species, hyp_trans + id ~ species, value.var="species", fun.aggregate = length)
+colnames(data.species) <- sub(". ","_",fixed = TRUE, colnames(data.species))
+head(data.species)
+data.species <- data.species[,c(-2)]
+
+species.stan.trans <- map2stan(alist(
+  hyp_trans ~ dnorm(mu,sigma),
+  mu <- bChil*S_chilense + bChmi*S_chmielewskii + bHab*S_habrochaites + bPen * S_pennellii + bPer*S_peruvianum,
+  c(bChil,bChmi,bHab,bPen,bPer) ~ dnorm(5.7,20), # almost identical results were produced no matter which start value I use 
+  sigma ~ dunif(0,20)),
+  data.species,
+  chains = 4)
+
+plot(species.stan)
+precis(species.stan.trans)
+# par(mfrow=c(1,1),mfcol=c(1,1))
+# plot(precis(species.stan))
+
+# model with species and treatment
+
+head(data)
+data.species.trt <- data[,c("hyp_trans", "species", "trt")]
+
+head(data.species.trt)
+data.species.trt$id <- 1:nrow(data.species.trt)
+data.species.trt <- dcast(data.species.trt, hyp_trans + trt + id ~ species, value.var="species", fun.aggregate = length)
+data.species.trt <- data.species.trt[,c(-3)]
+data.species.trt$trt <- as.numeric(data.species.trt$trt)-1
+colnames(data.species.trt) <- sub(". ","_",fixed = TRUE, colnames(data.species.trt))
+head(data.species.trt)
+
+species.trt.stan.trans <- map2stan(alist(
+  hyp_trans ~ dnorm(mu,sigma),
+  mu <- a + bT*trt + bChil*S_chilense + bHab*S_habrochaites + bPen * S_pennellii + bPer*S_peruvianum,
+  a ~ dnorm(33.35,10),
+  c(bT,bChil,bHab,bPen,bPer) ~ dnorm(0,10),
+  sigma ~ dunif(0,20)),
+  data.species.trt,
+  chains = 4)
+
+plot(species.trt.stan)
+precis(species.trt.stan.trans)
+# par(mfrow=c(1,1),mfcol=c(1,1))
+# plot(precis(species.trt.stan))
+
+# model with species, treatment, and interaction 
+head(data.species.trt)
+
+species.trt.interaction.stan.trans <- map2stan(alist(
+  hyp_trans ~ dnorm(mu,sigma),
+  mu <- a + bT*trt + bChil*S_chilense + bHab*S_habrochaites + bPen * S_pennellii + bPer*S_peruvianum + cTChil*S_chilense*trt + cTHab*S_habrochaites*trt + cTPen*S_pennellii*trt + cTPer*S_peruvianum*trt, 
+  a ~ dnorm(33.35,10),
+  c(bT,bChil,bHab,bPen,bPer,cTChil,cTHab,cTPen,cTPer) ~ dnorm(0,10),
+  sigma ~ dunif(0,20)),
+  data.species.trt,
+  chains = 4)
+
+plot(species.trt.stan)
+precis(species.trt.interaction.stan.trans)
+# par(mfrow=c(1,1),mfcol=c(1,1))
+# plot(precis(species.trt.stan))
+
+#compare models
+
+compare(trt.stan.trans,species.trt.stan.trans,species.stan.trans, species.trt.interaction.stan.trans)
+plot(compare(trt.stan.trans,species.trt.stan.trans,species.stan.trans, species.trt.interaction.stan.trans))
+
+coeftab(trt.stan.trans,species.trt.stan.trans,species.stan.trans, species.trt.interaction.stan.trans)
+
+plot(coeftab(trt.stan.trans,species.trt.stan.trans,species.stan.trans, species.trt.interaction.stan.trans))
 
 # what can we say about the treatment effect? 
 
@@ -168,69 +338,43 @@ dens(post.bT,show.HPDI = 0.95) # the fact that the 95% HDPI intervals are far aw
 sum(post.bT <= 0) / length(post.bT) # None of the posterior distribution for bT is less than or equal to 0.
 ```
 
-# try sqrt transformation 
+# compare non-transformed & transformed data 
 ```{r}
-# sqrt transformation 
-data$hyp_sqrt <- sqrt(data$hyp)
-head(data)
+compare(species.trt.interaction.stan.trans, species.trt.interaction.stan) # go back and check how WAIC was calculated. 
 
-# only trt 
-# categorical variable for trt
-data$trt2 <- ifelse(data$trt=="L",1,0)
+# information criterial is about: the deviance in-sample (training) plus twice the number of parameters on the horizontal axis. 
 
-#must subset the data frame to contain only the relevant columns
-data.trt.sqrt <- data[,c("hyp_sqrt","trt2")]
+# what is in-sample deviance? how to calculate this? 
+# (-2) * logLik(model)
+# -2 * log-likelihood of the data is called information criterial, so the value of the original data also affect the value of information criterial, which in here is WAIC. That's why you get higher WAIC values for non-transformed data and much lower values for transformed data. 
 
-head(data.trt.sqrt)
-data.trt.sqrt
+# how to get sqrt transformation parameter back to the orignal scale? 
+precis(trt.stan.trans)
+#       Mean StdDev lower 0.89 upper 0.89 n_eff Rhat
+# a     5.48   0.04       5.43       5.54  1995    1
+# bT    0.46   0.05       0.38       0.54  1867    1
+# sigma 0.82   0.02       0.79       0.85  2715    1
 
-mean(data.trt.sqrt$hyp_sqrt)
-# trt model
-hyp.stan.sqrt <- map2stan(alist(
-  hyp ~ dnorm(mu,sigma),
-  mu <- a + bT * trt2,
-  a ~ dnorm(5.7,100), # forget how to get an estimate of these start values??? 
-  bT ~ dnorm(0,10), # and this
-  sigma ~ dunif(0,20)), # and this... 
-  data.trt.sqrt,
-  chains = 4)
+precis(trt.stan)
+#        Mean StdDev lower 0.89 upper 0.89 n_eff Rhat
+# a     30.66   0.41      30.05      31.37  2121    1
+# bT     5.30   0.58       4.41       6.26  1992    1
+# sigma  9.60   0.21       9.27       9.92  2856    1
 
-plot(hyp.stan)
-precis(hyp.stan.sqrt)
-par(mfrow=c(1,1),mfcol=c(1,1))
-plot(precis(hyp.stan))
+# for the above, to get sqrt(a) back to original, just do 
+5.48*5.48
+# get bT to original would be 
+(5.48+0.46)^2 - 5.48^2
+# get sigma back to orginal would be ??? 
 
-head(data)
+# 3)  Fit a model with a species by treatment interaction. Which species have a trt response that is different from S. chm? 
 
-# species model 
-# fit a model with species 
-data.species.sqrt <- data[,c("hyp","species")]
-data.species.sqrt$id <- 1:nrow(data.species.sqrt)
-data.species.sqrt <- dcast(data.species.sqrt, hyp + id ~ species, value.var="species", fun.aggregate = length)
-colnames(data.species.sqrt) <- sub(". ","_",fixed = TRUE, colnames(data.species.sqrt))
-head(data.species.sqrt)
-data.species.sqrt$hyp_sqrt <- sqrt(data.species.sqrt$hyp)
-head(data.species.sqrt)
-data.species.sqrt <- data.species.sqrt[,c(-1,-2)]
-
-species.stan.sqrt <- map2stan(alist(
-  hyp ~ dnorm(mu,sigma),
-  mu <- bChil*S_chilense + bChmi*S_chmielewskii + bHab*S_habrochaites + bPen * S_pennellii + bPer*S_peruvianum,
-  c(bChil,bChmi,bHab,bPen,bPer) ~ dnorm(33.35,20),
-  sigma ~ dunif(0,20)),
-  data.species.sqrt,
-  chains = 4)
-
-plot(species.stan)
-precis(species.stan)
-par(mfrow=c(1,1),mfcol=c(1,1))
-plot(precis(species.stan))
-
-
-
+precis(species.trt.interaction.stan.trans)
+# how to calculate p-value for stan? I will know which is significant only if I know the p-value.. 
 
 
 
 ```
+
 
 
