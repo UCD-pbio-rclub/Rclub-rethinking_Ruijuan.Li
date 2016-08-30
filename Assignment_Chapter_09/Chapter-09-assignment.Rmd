@@ -158,13 +158,18 @@ species.trt.interaction.stan <- map2stan(alist(
   chains = 4)
 
 # plot(species.trt.stan)
-precis(species.trt.interaction.stan)
+precis(species.trt.interaction.stan) 
 # par(mfrow=c(1,1),mfcol=c(1,1))
 # plot(precis(species.trt.stan))
 
 #compare models
 
 compare(trt.stan,species.trt.stan,species.stan, species.trt.interaction.stan)
+```
+
+# get p-value 
+```{r}
+
 ```
 
 # sqrt transformed data 
