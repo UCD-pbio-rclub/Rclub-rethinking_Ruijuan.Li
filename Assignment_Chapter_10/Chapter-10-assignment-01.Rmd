@@ -77,8 +77,11 @@ m10.4.map <- map(
   ), 
   data = d) 
 
-precis(m10.4)
-precis(m10.4.map)
+precis(m10.4, depth = 2)
+precis(m10.4.map, depth = 2)
+
+pairs(m10.4)
+pairs(m10.4.map)
 # the result is very similar... difference... the way of their calculation is different.. how different??? 
 ```
 
