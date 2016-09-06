@@ -24,7 +24,7 @@ log.odds.10E1
 log.odds.10E2 <- 3.2
 odds.10E2 <- exp(3.2)
 # since odds.10E2 = p/1-p, and odds.10E2 = 24.53253, so 
-p.10E2 = odds.10E2/(odds.10E2+1)
+p.10E2 = odds.10E2/(odds.10E2+1) 
 p.10E2
 ```
 
