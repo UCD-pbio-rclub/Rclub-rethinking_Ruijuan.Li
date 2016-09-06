@@ -2,7 +2,9 @@
 title: "Chapter-10-assignment"
 author: "Ruijuan Li"
 date: "September 5, 2016"
-output: html_document
+output: 
+  html_document: 
+    keep_md: yes
 ---
 
 # 10E1
@@ -12,7 +14,7 @@ output: html_document
 
 p.10E1 <- 0.35 
 odds.10E1 <- 0.35/(1-0.35)
-log.odds.10E1 <- log(odds)
+log.odds.10E1 <- log(odds.10E1)
 log.odds.10E1
 ```
 
@@ -51,6 +53,9 @@ exp(1.7)-1 # the odds increase by 447%
 library(rethinking)
 data("chimpanzees")
 d <- chimpanzees
+d2 <- d
+d2$recipient <- NULL
+
 
 m10.4 <- map2stan(
   alist(
@@ -70,7 +75,7 @@ m10.4.map <- map(
     bp ~ dnorm(0, 10),
     bpC ~ dnorm(0, 10)
   ), 
-  data = d2) 
+  data = d) 
 
 precis(m10.4)
 precis(m10.4.map)
