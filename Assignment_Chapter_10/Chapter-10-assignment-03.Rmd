@@ -9,7 +9,77 @@ output:
 
 # 10H3
 ```{r}
+library(MASS)
+data("eagles")
+?eagles
+d <- eagles
+head(d)
 
+# make dummy variables 
+d$P_L <- ifelse(d$P=="L", 1, 0) 
+d$A_A <- ifelse(d$A=="A", 1, 0)
+d$V_L <- ifelse(d$V=="L", 1, 0)
+
+head(d)
+d # 8 samples 
+
+# a) fit the model using map & map2stan 
+# fit the model using map 
+m10H3.1 <- map(
+  alist(
+    y ~ dbinom(n, p),
+    logit(p) <- a + bp*P_L + bv*V_L + ba*A_A,
+    a ~ dnorm(0, 10),
+    c(bp, bv, ba) ~ dnorm(0, 5)
+  ), 
+  data = d) 
+precis(m10H3.1, corr = T)
+pairs(m10H3.1) # normal distribution of different outcome, OK with map   
+
+# using map2stan 
+m10H3.2 <- map2stan(m10H3.1, chains = 2, iter = 2500, warmup = 500)
+precis(m10H3.2, corr = T)
+pairs(m10H3.2) 
+
+# b) plot the posterior predictions 
+# OK to use map result, so to use map result 
+# probability 
+pred.1 <- link(m10H3.1, data = d) # predicted values 
+dim(pred.1) #1000 8 (dim of 8 because we have 8 samples in the dataset)
+head(pred.1)
+
+pred.df <- apply(pred.1, 2, mean)
+pred.df.HPDI <- apply(pred.1, 2, HPDI, prob=0.89)
+
+library(grid)
+grid.newpage()
+
+plot(1:8, pred.df)
+shade(pred.df.HPDI, 1:8) 
+
+# count 
+pred.df.count <- pred.df * d$n
+pred.df.HPDI.count <- pred.df.HPDI * d$n
+
+grid.newpage()
+plot(1:8, pred.df.count)
+shade(pred.df.HPDI.count, 1:8) 
+# have no idea how to plot the result 
+
+# c) consider interaction between the pirate's size and age 
+m10H3.3 <- map2stan(
+  alist(
+    y ~ dbinom(n, p),
+    logit(p) <- a + bp*P_L + bv*V_L + ba*A_A + bva*V_L*A_A,
+    a ~ dnorm(0, 10),
+    c(bp, bv, ba, bva) ~ dnorm(0, 5)
+  ), 
+  data = d) 
+precis(m10H3.3, corr = T)
+pairs(m10H3.3)
+
+compare(m10H3.3, m10H3.2)
+# adding interaction helps 
 ```
 
 # Liron's data
@@ -22,12 +92,77 @@ output:
 # A couple of hints: 
 # 1) if you are using Stan you will need to remove the "." from any variable names.
 # 2) You may want to baseline temperature so that the lowest value is 0 rather than 14
-# 3) You may want to make a dummy variable for species.  Or alternatively use multiple intercepts.
+# 3) You may want to make a dummy variable for species. Or alternatively use multiple intercepts.
 
 ### load the data and reformat
+data.Liron <- read.csv("~/Desktop/2016_fall/R_club/Assignment_Chapter_10/LironDataTime1.csv")
+head(data.Liron)
+summary(data.Liron)
+str(data.Liron)
+
+# reformat for map2stan 
+colnames(data.Liron) <- gsub("\\.", "", colnames(data.Liron))
+colnames(data.Liron)
+data.Liron$M82 <- ifelse(data.Liron$Species == "M82", 1, 0)
+data.Liron$Germinationnew <- ifelse(data.Liron$Germination=="Yes", 1, 0)
+head(data.Liron)
+unique(data.Liron$Temperature)
+data.Liron$Temperaturenew <- ifelse(data.Liron$Temperature==14, 1, 0)
 
 ### analysis 
+# 1) whether or not the two species have different germination rates
+# only get the necessary objects 
+# data.Liron.1 <- data.Liron[,c(8,9)] # somewhere I remember we can only have the necessary objects, anyone remember? 
+# head(data.Liron.1)
 
+# species 
+m1 <- map2stan(
+  alist(
+    Germinationnew ~ dbinom(1, p),
+    logit(p) <- a + bm*M82,
+    a ~ dnorm(0.5, 1),
+    bm ~ dnorm(0, 10)
+  ), 
+  data = data.Liron, chains = 2, iter = 2500, warmup = 500) 
+precis(m1)
 
+# temperature 
+m2 <- map2stan(
+  alist(
+    Germinationnew ~ dbinom(1, p),
+    logit(p) <- a + bt*Temperaturenew,
+    a ~ dnorm(0.5, 1),
+    bt ~ dnorm(0, 10)
+  ), 
+  data = data.Liron, chains = 2, iter = 2500, warmup = 500) 
+precis(m2)
+
+# both species & temperature 
+m3 <- map2stan(
+  alist(
+    Germinationnew ~ dbinom(1, p),
+    logit(p) <- a + bt*Temperaturenew + bm*M82,
+    a ~ dnorm(0.5, 1),
+    c(bt, bm) ~ dnorm(0, 10)
+  ), 
+  data = data.Liron, chains = 2, iter = 2500, warmup = 500) 
+precis(m3) 
+
+# adding species & temperature interaction 
+m4 <- map2stan(
+  alist(
+    Germinationnew ~ dbinom(1, p),
+    logit(p) <- a + bt*Temperaturenew + bm*M82 + btm*Temperaturenew*M82,
+    a ~ dnorm(0.5, 1),
+    c(bt, bm, btm) ~ dnorm(0, 10) 
+  ), 
+  data = data.Liron, chains = 2, iter = 2500, warmup = 500) 
+precis(m4)  
+
+# don't have time to interpret the result.  
+
+# compare 
+compare(m1, m2, m3, m4)
+# the last one is the best. 
 ```
 
