@@ -1,0 +1,69 @@
+---
+title: "Chapter-10-assignment-02"
+author: "Ruijuan Li"
+date: "10/20/2016"
+output: html_document
+---
+
+# 10E4
+```{r}
+# why do poission regression sometimes require the use of an offset? provide an eg. 
+# the "buy or not to buy the new monastery" example in the book, because you need to compare the result with different rate and make decisions. 
+```
+
+# 10M2
+```{r}
+# If a coefficient in a Poisson regression has value 1.7, what does this imply about the change in the outcome? 
+# one unit change of this predictor resulted in exp(1.7) change in the result
+exp(1.7)
+```
+
+# 10M4
+```{r}
+# Explain why the log link is appropriate for a Poisson generalized linear model.  
+# The log link ensures that the outcome is positive.
+```
+
+# 10M5
+```{r}
+# What would it imply to use a logit link for the mean of a Poisson generalized linear model? Can you think of a real research problem for which this would make sense? 
+
+# don't know... 
+```
+
+# 10H4 
+```{r}
+library(rethinking)
+data("salamanders")
+d <- salamanders
+head(d)
+
+# a) model the relationship between density and percent coverage; check the quadratic approximation again, by comparing map to map2stan.
+
+m10H4.1 <- map(
+  alist(
+    SALAMAN <- dpois(lambda),
+    log(lambda) <- a + b*PCTCOVER,
+    a ~ dnorm(0,1),
+    b ~ dnorm(0,1)
+  ), data = d)
+precis(m10H4.1)
+
+m10H4.2 <- map2stan(m10H4.1,chains=4,iter=4000)
+precis(m10H4.2)  
+pairs(m10H4.2)
+
+# Then plot the expected counts and their 89% interval against percent cover. In which ways does the model do a good job? In which ways does it do a bad job?  
+...
+
+# b) Can you improve the model by using the other predictor, FORESTAGE? Try any models you think useful. Can you explain why FORESTAGE helps or does not help with prediction? 
+
+# add FORESTAGE as another predictor (can try w/ and w/o interaction effect models) and compared models... 
+# don't have time for this. 
+```
+
+
+
+
+
+
