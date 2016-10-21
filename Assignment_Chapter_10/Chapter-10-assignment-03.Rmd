@@ -1,0 +1,33 @@
+---
+title: "Chapter-10-assignment-03"
+author: "Ruijuan Li"
+date: "10/20/2016"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+# 10H3
+```{r}
+
+```
+
+# Liron's data
+```{r}
+### problem description 
+# data sheet from Liron and records germination for M82 and pen at two temperatures.
+
+# Perform a Bayesian analysis to determine whether or not the two species have different germination rates, whether temperature affects germination, and whether there is a temperature by germination interaction.  Determine the posterior estimates for germination rate for each species at each temperature and determine the confidence intervals around these estimates.
+
+# A couple of hints: 
+# 1) if you are using Stan you will need to remove the "." from any variable names.
+# 2) You may want to baseline temperature so that the lowest value is 0 rather than 14
+# 3) You may want to make a dummy variable for species.  Or alternatively use multiple intercepts.
+
+### load the data and reformat
+
+### analysis 
+
+
+```
+

@@ -38,7 +38,7 @@ data("salamanders")
 d <- salamanders
 head(d)
 
-# a) model the relationship between density and percent coverage; check the quadratic approximation again, by comparing map to map2stan.
+# a) model the relationship between density and percent coverage; check the quadratic approximation again, by comparing map to map2stan. 
 
 m10H4.1 <- map(
   alist(
