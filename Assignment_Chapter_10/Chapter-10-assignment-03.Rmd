@@ -37,12 +37,12 @@ precis(m10H3.1, corr = T)
 pairs(m10H3.1) # normal distribution of different outcome, OK with map   
 
 # using map2stan 
-m10H3.2 <- map2stan(m10H3.1, chains = 2, iter = 2500, warmup = 500)
+m10H3.2 <- map2stan(m10H3.1, chains = 4, iter = 2500, warmup = 500) # better to use more chains than 2 (use 4), to check whether each chain behave the same 
 precis(m10H3.2, corr = T)
 pairs(m10H3.2) 
 
 # b) plot the posterior predictions 
-# OK to use map result, so to use map result 
+# not OK to use map result, because by visualizing the map2stan pairs() result, we see a skewed distribution of parameters, so "map2stan" 
 # probability 
 pred.1 <- link(m10H3.1, data = d) # predicted values 
 dim(pred.1) #1000 8 (dim of 8 because we have 8 samples in the dataset)
@@ -65,6 +65,8 @@ grid.newpage()
 plot(1:8, pred.df.count)
 shade(pred.df.HPDI.count, 1:8) 
 # have no idea how to plot the result 
+# use exp() to check changes in probability  
+# use logistic() to check probability 
 
 # c) consider interaction between the pirate's size and age 
 m10H3.3 <- map2stan(
@@ -75,11 +77,14 @@ m10H3.3 <- map2stan(
     c(bp, bv, ba, bva) ~ dnorm(0, 5)
   ), 
   data = d) 
+precis(m10H3.2)
 precis(m10H3.3, corr = T)
-pairs(m10H3.3)
+pairs(m10H3.3) # why the base line changes? I still don't understand ... 
 
 compare(m10H3.3, m10H3.2)
 # adding interaction helps 
+
+# using emsemble to include multiple models 
 ```
 
 # Liron's data
@@ -147,6 +152,7 @@ m3 <- map2stan(
   ), 
   data = data.Liron, chains = 2, iter = 2500, warmup = 500) 
 precis(m3) 
+pairs(m3)
 
 # adding species & temperature interaction 
 m4 <- map2stan(
@@ -162,7 +168,21 @@ precis(m4)
 # don't have time to interpret the result.  
 
 # compare 
-compare(m1, m2, m3, m4)
+compare(m1, m2, m3, m4) 
 # the last one is the best. 
+
+### better not to use narrow prior 
+
+# logit(p) <- 
+
+# Determine the posterior estimates for germination rate for each species at each temperature and determine the confidence intervals around these estimates. 
+
+# extract.sample or link to predict? 
+# post <- extract.samples(m4) 
+
+# make dataframe for each combination and 
+
+
+
 ```
 
