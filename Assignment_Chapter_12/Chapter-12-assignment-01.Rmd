@@ -1,0 +1,204 @@
+---
+title: "Chapter-12-assignment-01"
+author: "Ruijuan Li"
+date: "10/27/2016"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+# 12E1
+```{r}
+# Which of the following priors will produce more shrinkage in the estimates? (a) αTANK ~ Normal(0, 1); (b) αTANK ~ Normal(0, 2). 
+
+# shrinkage: the multilevel estimate is closer to the estimated median survival proportion in the population of tanks than the raw empirical estimate is. (the raw empirical estimate isn't from the raw data? they are the data, which can be used as prior too? )
+
+# get data 
+library(rethinking)
+data("reedfrogs")
+d <- reedfrogs
+d$tank <- 1:nrow(d)
+
+# how different these priors are? check 
+sapply(c(0, 1, -1), logistic) # narrower prior 
+sapply(c(0, 2, -2), logistic) # wider prior 
+
+# try aTank ~ Normal(0, 1)
+m12E1.1 <- map2stan(
+  alist(
+    surv ~ dbinom(density, p),  
+    logit(p) <- a_tank[tank],
+    a_tank[tank] ~ dnorm(0, 1)  
+  ), data = d)
+
+precis(m12E1.1, depth = 2) 
+
+# try aTank ~ Normal(0, 2)
+m12E1.2 <- map2stan(
+  alist(
+    surv ~ dbinom(density, p),  
+    logit(p) <- a_tank[tank],
+    a_tank[tank] ~ dnorm(0, 2)  
+  ), data = d)
+
+precis(m12E1.2, depth = 2) 
+
+# extract posterior and plot to check the result 
+par(mfrow=c(1,2))
+post_1 <- extract.samples(m12E1.1)
+post_2 <- extract.samples(m12E1.2)
+
+d$propsurv_est_1 <- logistic(apply(post_1$a_tank, 2, median))
+d$propsurv_est_2 <- logistic(apply(post_2$a_tank, 2, median))
+
+# post1
+plot(d$propsurv, ylim=c(0,1), pch=16, xaxt="n",
+     xlab="post1", ylab="proportion survival", col=rangi2)
+
+points(d$propsurv_est_1, type = "p")
+?points 
+abline(h=logistic(median(post_1$a)), lty=2)
+
+# draw vertical dividers between tank densities 
+abline(v=16.5, lwd=0.5)
+abline(v=32.5, lwd=0.5)
+
+# post2
+plot(d$propsurv, ylim=c(0,1), pch=16, xaxt="n",
+     xlab="post2", ylab="proportion survival", col=rangi2)
+
+points(d$propsurv_est_2, type = "p")
+?points 
+abline(h=logistic(median(post_2$a)), lty=2)
+
+# draw vertical dividers between tank densities 
+abline(v=16.5, lwd=0.5)
+abline(v=32.5, lwd=0.5)
+
+par(mfrow=c(1,1))
+# based on the result, αTANK ~ Normal(0, 1), narrow prior produce more shrinkage. Why? 
+
+```
+
+# 12E2
+```{r}
+# make a multilevel model 
+
+# yi ~ Binomial(1, pi)
+# logit(pi) = a_group[i] + bxi
+# a_group ~ Normal(a, sigma)
+# b ~ Normal(0, 1)
+# a ~ Normal(0, 1)
+# sigma ~ HalfCauchy(0, 1)
+
+```
+
+# 12M1
+```{r}
+# Revisit the Reed frog survival data, data(reedfrogs), and add the predation and size treatment variables to the varying intercepts model. Consider models with either main effect alone, both main effects, as well as a model including both and their interaction. Instead of focusing on inferences about these two predictor variables, focus on the inferred variation across tanks. Explain why it changes as it does across models. 
+
+head(d) 
+d$pred
+d$size
+
+d$pred_2 <- ifelse(d$pred=="pred", 1, 0)
+d$size_s <- ifelse(d$size=="small", 1, 0)
+
+head(d)
+
+# fit 4 multilevel models 
+
+# add pred 
+m12M1.1 <- map2stan(
+  alist(
+    surv ~ dbinom(density, p),
+    logit(p) <- a_tank[tank] + b_pred*pred_2,
+    a_tank[tank] ~ dnorm(a, sigma),
+    c(a, b_pred) ~ dnorm(0, 1), # ??? why normal distribution with these prior? 
+    sigma ~ dcauchy(0, 1) 
+  ), data = d, iter = 4000, chains = 4)
+
+# add size 
+m12M1.2 <- map2stan(
+  alist(
+    surv ~ dbinom(density, p),
+    logit(p) <- a_tank[tank] + b_size*size_s,
+    a_tank[tank] ~ dnorm(a, sigma),
+    c(a, b_size) ~ dnorm(0, 1), # ??? why normal distribution with these prior? 
+    sigma ~ dcauchy(0, 1)
+  ), data = d, iter = 4000, chains = 4)
+
+# add both pred & size 
+m12M1.3 <- map2stan(
+  alist(
+    surv ~ dbinom(density, p),
+    logit(p) <- a_tank[tank] + b_size*size_s + b_pred*pred_2,
+    a_tank[tank] ~ dnorm(a, sigma),
+    c(a, b_size, b_pred) ~ dnorm(0, 1), # ??? why normal distribution with these prior? 
+    sigma ~ dcauchy(0, 1) 
+  ), data = d, iter = 4000, chains = 4)
+
+# add pred, size, and interaction 
+m12M1.4 <- map2stan(
+  alist(
+    surv ~ dbinom(density, p),
+    logit(p) <- a_tank[tank] + b_size*size_s + b_pred*pred_2 + b_size_pred*size_s*pred_2,
+    a_tank[tank] ~ dnorm(a, sigma),
+    c(a, b_size, b_pred, b_size_pred) ~ dnorm(0, 1), # ??? why normal distribution with these prior? 
+    sigma ~ dcauchy(0, 1) 
+  ), data = d, iter = 4000, chains = 4)
+
+# inferred variation across tanks... what does this mean? same plot as above? 
+# make a function so I don't have to write it out every time 
+
+plot.post <- function(model){
+  post <- extract.samples(model)
+  d$propsurv_est <- logistic(apply(post$a_tank, 2, median))
+  plot(d$propsurv, ylim=c(0,1), pch=16, xaxt="n",
+       xlab="", ylab="proportion survival", col=rangi2)
+
+  points(d$propsurv_est, type = "p")
+  abline(h=logistic(median(post$a)), lty=2)
+
+  # draw vertical dividers between tank densities 
+  abline(v=16.5, lwd=0.5)
+  abline(v=32.5, lwd=0.5)
+} 
+
+par(mfrow=c(2,2)) 
+p.pred <- plot.post(m12M1.1)
+p.size <- plot.post(m12M1.2)
+p.pred.size <- plot.post(m12M1.3)
+p.pred.size.inter <- plot.post(m12M1.4) # running untill here ... 
+
+# maybe the density plot? 
+post <- extract.samples(m12M1.1) 
+sim_tanks <- rnorm(8000, post$a, post$sigma) 
+dens(logistic(sim_tanks), xlab="probability survive")
+
+post <- extract.samples(m12M1.2) 
+sim_tanks <- rnorm(8000, post$a, post$sigma) 
+dens(logistic(sim_tanks), xlab="probability survive")
+
+post <- extract.samples(m12M1.3) 
+sim_tanks <- rnorm(8000, post$a, post$sigma) 
+dens(logistic(sim_tanks), xlab="probability survive")
+
+post <- extract.samples(m12M1.4) 
+sim_tanks <- rnorm(8000, post$a, post$sigma) 
+dens(logistic(sim_tanks), xlab="probability survive")
+
+par(mfrow=c(1,1))
+
+# Explain why it changes as it does across models. 
+
+```
+
+# 12M2
+```{r}
+# Compare the models you fit just above, using WAIC. Can you reconcile the differences in WAIC with the posterior distributions of the models? 
+compare(m12M1.1, m12M1.2, m12M1.3, m12M1.4)
+
+# don't understand the question...  
+```
+
