@@ -116,10 +116,15 @@ sort(unique(d.fertility$district_id))
 ```{r, results='hide'}
 # Now, focus on predicting use.contraception, clustered by district_id. Do not include urban just yet.  
 # fit a traditional fixed-effects model that uses dummy variables for district 
+# create dummy variable, how?  
 
-
-
-
+# fit the model with dummy variables for each? 
+m12H1.1 <- map2stan(
+  alist(
+    use_contraception ~ dbinom(1, p),
+    logit(p) <- a_district[district_id],
+    a_district[district_id] ~ dnorm(0, 5)
+  ), data = d.fertility, iter = 4000, chains = 4) 
 
 
 # fit a multilevel model with varying intercepts for district.  
@@ -131,6 +136,7 @@ m12H1.2 <- map2stan(
     a ~ dnorm(0, 1), 
     sigma ~ dcauchy(0, 1)  
   ), data = d.fertility, iter = 4000, chains = 4) 
+
 
 ```
 
