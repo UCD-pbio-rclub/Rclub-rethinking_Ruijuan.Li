@@ -30,6 +30,7 @@ m12M3.chapter <- map2stan(
     sigma ~ dcauchy(0, 1)  
   ), data = d, iter = 4000, chains = 4) 
 
+
 m12M3.here <- map2stan(
   alist(
     surv ~ dbinom(density, p),
@@ -60,23 +61,94 @@ d$propsurv.est.here <- logistic(apply(post.here$a_tank, 2, mean))
 d.plot <- data.frame(row.names = c(1: 96),
                      tank = rep(c(1:48), 2),
                      propsurv.est = c(d$propsurv.est.here, d$propsurv.est.chapter),
-                     class = c(rep("here", 48), rep("chapter", 48)))
+                     class = c(rep("here", 48), rep("chapter", 48)),
+                     size=rep(d$density,2))
 
-head(d.plot)
-tail(d.plot)
 
 p.1 <- ggplot(data = d.plot)
 p.1 <- p.1 + geom_point(aes(x=tank, y = propsurv.est, color=factor(class)))
+p.1 <- p.1 + facet_grid(~size)
 p.1
 
+# as the sample size increases, the difference between the two models decreases, but which one is closer to the truth?  
+
+# I don't quite understand the estimate got from precis, what if plot all of them together? 
+estimated.chapter <- logistic(as.numeric(coef(m12M3.chapter)[1:48]))  
+estimated.here <- logistic(as.numeric(coef(m12M3.here)[1:48]))
+
+d.plot.2 <- data.frame(row.names = c(1: 192),
+                     tank = rep(c(1:48), 4),
+                     propsurv.est = c(d$propsurv.est.here, estimated.here, d$propsurv.est.chapter, estimated.chapter),
+                     class = c(rep("here", 96), rep("chapter", 96)),
+                     type=c(rep("posterior", 48), rep("estimate", 48), rep("posterior", 48), rep("estimate", 48)),
+                     size=rep(d$density,4))
+
+p.2 <- ggplot(data = d.plot.2)
+p.2 <- p.2 + geom_point(aes(x=tank, y = propsurv.est, color=factor(class)))
+p.2 <- p.2 + facet_grid(type~size)
+p.2
+
+# precis result & posterior are the same thing? 
 ```
 
 
 # 12H1
 ```{r}
-# 
+# get data, 1934 women's fertility data 
+data("bangladesh")
+d.fertility <- bangladesh
+head(d.fertility) # 1) district: where they are from 2) use.contraception: 0/1 indicate yes or no 3) urban: from city or rural area 
+colnames(d.fertility) <- gsub("\\.", "_", colnames(d.fertility)) # remove dots 
+head(d.fertility)
+dim(d.fertility) # 1934    6 
+str(d.fertility)
+
+# The first thing to do is ensure that the cluster variable, district, is a contiguous set of integers. Recall that these values will be index values inside the model. If there are gaps, you'll have parameters for which there is no data to inform them. Worse, the model probably won't run. Look at the unique values of the district variable: 
+
+sort(unique(d.fertility$district))
+
+# District 54 is absent. So district isn't yet a good index variable, because it's not contiguous. This is easy to fix. Just make a new variable that is contiguous. This is enough to do it: 
+
+d.fertility$district_id <- as.integer(as.factor(d.fertility$district))
+sort(unique(d.fertility$district_id))
+```
+
+```{r, results='hide'}
+# Now, focus on predicting use.contraception, clustered by district_id. Do not include urban just yet.  
+# fit a traditional fixed-effects model that uses dummy variables for district 
 
 
+
+
+
+
+# fit a multilevel model with varying intercepts for district.  
+m12H1.2 <- map2stan(
+  alist(
+    use_contraception ~ dbinom(1, p),
+    logit(p) <- a_district[district_id],
+    a_district[district_id] ~ dnorm(a, sigma),
+    a ~ dnorm(0, 1), 
+    sigma ~ dcauchy(0, 1)  
+  ), data = d.fertility, iter = 4000, chains = 4) 
 
 ```
+
+```{r}
+precis(m12H1.2, depth = 2)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
