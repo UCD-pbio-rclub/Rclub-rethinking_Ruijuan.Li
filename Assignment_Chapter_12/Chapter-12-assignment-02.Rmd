@@ -1,0 +1,82 @@
+---
+title: "Chapter-12-assignment-02"
+author: "Ruijuan Li"
+date: "11/10/2016"
+output: 
+  html_document: 
+    keep_md: yes
+---
+# using results='hide' to hide text result 
+
+# 12M3
+```{r, results='hide'}
+# Re-estimate the basic Reed frog varying intercept model, but now using a Cauchy distribution in place of the Gaussian distribution for the varying intercepts. 
+
+library(rethinking)
+data("reedfrogs")
+d <- reedfrogs
+str(d)
+head(d)
+d$tank <- 1:nrow(d)
+head(d)
+d$density 
+
+m12M3.chapter <- map2stan(
+  alist(
+    surv ~ dbinom(density, p),
+    logit(p) <- a_tank[tank],
+    a_tank[tank] ~ dnorm(a, sigma),
+    a ~ dnorm(0, 1), 
+    sigma ~ dcauchy(0, 1)  
+  ), data = d, iter = 4000, chains = 4) 
+
+m12M3.here <- map2stan(
+  alist(
+    surv ~ dbinom(density, p),
+    logit(p) <- a_tank[tank],
+    a_tank[tank] ~ dcauchy(a, sigma),
+    a ~ dnorm(0, 1), 
+    sigma ~ dcauchy(0, 1)  
+  ), data = d, iter = 4000, chains = 4)
+?Cauchy
+?dcauchy
+```
+
+# 12M3 continue 
+```{r}
+# Compare the posterior means of the intercepts, αTANK, to the posterior means produced in the chapter, using the customary Gaussian prior. Can you explain the pattern of differences? 
+precis(m12M3.chapter, depth = 2)
+precis(m12M3.here, depth = 2) 
+
+compare(m12M3.chapter, m12M3.here)
+post.chapter <- extract.samples(m12M3.chapter)
+post.here <- extract.samples(m12M3.here)
+
+# compute posterior mean for each tank 
+# also transform to probability with logistic 
+d$propsurv.est.chapter <- logistic(apply(post.chapter$a_tank, 2, mean))
+d$propsurv.est.here <- logistic(apply(post.here$a_tank, 2, mean))
+
+d.plot <- data.frame(row.names = c(1: 96),
+                     tank = rep(c(1:48), 2),
+                     propsurv.est = c(d$propsurv.est.here, d$propsurv.est.chapter),
+                     class = c(rep("here", 48), rep("chapter", 48)))
+
+head(d.plot)
+tail(d.plot)
+
+p.1 <- ggplot(data = d.plot)
+p.1 <- p.1 + geom_point(aes(x=tank, y = propsurv.est, color=factor(class)))
+p.1
+
+```
+
+
+# 12H1
+```{r}
+# 
+
+
+
+```
+
