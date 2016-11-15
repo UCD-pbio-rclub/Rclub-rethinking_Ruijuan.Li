@@ -88,6 +88,8 @@ p.2 <- p.2 + geom_point(aes(x=tank, y = propsurv.est, color=factor(class)))
 p.2 <- p.2 + facet_grid(type~size)
 p.2
 
+# cauchy distribution get thicker tail. 
+
 # precis result & posterior are the same thing? 
 ```
 
