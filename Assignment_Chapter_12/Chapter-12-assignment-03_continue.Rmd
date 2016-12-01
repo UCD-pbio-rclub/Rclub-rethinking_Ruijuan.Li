@@ -1,0 +1,18 @@
+---
+title: "Chapter-12-assignment-03"
+author: "Ruijuan Li"
+date: "12/1/2016"
+output: html_document
+---
+
+# 12H2 
+```{r}
+
+
+
+```
+
+# 12H3
+```{r}
+
+```

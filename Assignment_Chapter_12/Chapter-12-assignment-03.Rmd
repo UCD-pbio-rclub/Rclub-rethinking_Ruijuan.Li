@@ -2,7 +2,9 @@
 title: "Chapter-12-assignment-03"
 author: "Ruijuan Li"
 date: "11/30/2016"
-output: html_document
+output: 
+  html_document: 
+    keep_md: yes
 ---
 
 # 12E3
@@ -108,17 +110,6 @@ par(mfrow=c(1,1))
 # the model here has bad Rhat and very small number of effective samples. Also a narrower posterior distribution of sigma compared to the model created in the chapter, although the peak is about the same. Why???? because the non-zero alpha ...  
 ```
 
-# 12H2 
-```{r}
-
-
-
-```
-
-# 12H3
-```{r}
-
-```
 
 
 
