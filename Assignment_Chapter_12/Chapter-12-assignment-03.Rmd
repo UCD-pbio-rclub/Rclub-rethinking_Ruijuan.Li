@@ -83,11 +83,13 @@ m12M4.2 <- map2stan(
 
 # check the summary result of these two models 
 # compare the numher of effective samples 
-precis(m12M4.1, depth = 2)
+par(mfrow=c(2,1)) 
+plot(precis(m12M4.1, depth = 2))
+plot(precis(m12M4.2, depth = 2))
 precis(m12M4.2, depth = 2) # bad Rhat & n_eff 
 plot(m12M4.1)
 plot(m12M4.2) # bad !!! 
-par(mfrow=c(1,1))
+par(mfrow=c(1,1)) 
 
 # get posterior distribution of this new model 
 post.m12M4.1 <- extract.samples(m12M4.1)
@@ -108,6 +110,8 @@ par(mfrow=c(1,1))
 
 # explain the differences
 # the model here has bad Rhat and very small number of effective samples. Also a narrower posterior distribution of sigma compared to the model created in the chapter, although the peak is about the same. Why???? because the non-zero alpha ...  
+# posterior   
+
 ```
 
 
