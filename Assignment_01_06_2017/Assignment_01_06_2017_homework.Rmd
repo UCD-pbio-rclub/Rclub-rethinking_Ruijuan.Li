@@ -205,6 +205,14 @@ precis(mQ3.map2stan, depth = 2)
 
 ```
 
+# discussion 
+```{r}
+# 1) how to decide fixed and random effect? how to specify that in map2stan? cluster as random effect? 
+# 2) understand brms summary 
+# 3) brms plot plots the posterior distribution of different result 
+# 4) prior class "sd" equal to the sigma in hyperparameter (multilevel model)
+# other questions? things to discuss? 
+```
 
 
 
