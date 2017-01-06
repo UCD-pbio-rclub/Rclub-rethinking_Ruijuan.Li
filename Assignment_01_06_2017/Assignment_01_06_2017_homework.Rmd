@@ -1,0 +1,35 @@
+---
+title: "Assignment_01_06_2017_homework"
+author: "Ruijuan Li"
+date: "1/6/2017"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+# Exercises
+```{r}
+# To gain familiarity with brms I am going to have you refit models from Statistical Rethinking with brms. In all cases compare the brms and map2stan parameter estimates; they should be effectively the same if you have specified them correctly.
+```
+
+# Q1
+```{r}
+# Fit model 10.9 (R code 10.28) with brms. Remember that you should not need to transform the predictors, create dummy variables, nor coerce indexes to use brms. Compare to the map2stan fit. Test whether the coefficient for gender is different from 0 in the brms model.
+```
+
+# Q2
+```{r}
+# Refit models 12.1 and 12.2 (Rcode 12.2 and 12.3) with brms
+```
+
+# Q3
+```{r}
+# For the tomato data set, use both brms and map2stan to fit a model for intleng as a function of species, trt and their interaction, and include shelf as a random effect.
+```
+
+
+
+
+
+
+
