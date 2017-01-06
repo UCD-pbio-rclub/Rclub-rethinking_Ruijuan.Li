@@ -1,0 +1,185 @@
+---
+title: "BRMS"
+author: "Ruijuan Li"
+date: "1/5/2017"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+# BRMS background
+```{r}
+# brms (Bayesian Regression Modelling using Stan) , an alternative to map2stan for interfacting with Stan
+# brms has a more intuitive model specification and requires less data reformatting. 
+# the author provides a very detailed description;also available by typing vignette("brms_overview") 
+```
+
+# installation
+```{r}
+library(devtools)
+install_github("paul-buerkner/brms")
+```
+
+# model specification in brms, similar to lmer
+```{r}
+# repsonse ~ predictor1 + (1|random_predictor2) ... 
+```
+
+# use tomato dataset as example 
+```{r}
+setwd("~/Desktop/2017_winter/Rclub-rethinking_Ruijuan.Li/Assignment_01_06_2017/")
+library(brms)
+library(rstan)
+rstan_options(auto_write=TRUE)
+?rstan_options
+options(mc.cores = parallel::detectCores())
+tomato <- read.csv("../Assignment_Chapter_09/TomatoR2CSHL.csv") #adjust path as necesary
+summary(tomato)
+head(tomato)
+```
+
+# fit model hypoocytl length as function of treatment and species, and include a "random" effect for shelf.
+```{r}
+hyp1 <- brm(hyp ~ trt + species + (1|shelf),
+            data = tomato,
+            prior = set_prior("normal(0,10)",class="b") # I'll explain setting priors in the next section
+) 
+
+# note: 
+# no dummy variable was created for trt, species, or shelf
+# no priors was spcified for sigma and random effect
+# the default number of chains is 4 
+
+summary(hyp1)
+plot(hyp1, ask=FALSE)
+
+# Note: the summary automatically display informative coeffecient names compare this to using "coerced index" in rethinking. 
+```
+
+```{r}
+# Interactive model viewer 
+launch_shiny(hyp1)
+```
+
+# prior specification in brms 
+```{r}
+# brms will automatically set priors for many model parameters, but it uses non-sensical priors (uniform across all real numbers) for main-effect coefficients, so you must set priors for your main-effect coefficients. Most other priors have reasonable defaults.
+
+# The function for setting priors is set_priors().
+# 
+# Priors in brms have different classes.
+# 
+# The "Intercept" class is for the overall intercept
+# The "b" class is for coefficients on fixed effects (You can think of "b" as standing for "beta" coefficients)
+# The "sigma" class is for the overall standard deviation. Defaults to student_t(3, 0, 10)
+# The "sd" class is for the standard deviation of random effects terms. Defaults to student_t(3, 0, 10)
+# If you want to give the same prior to all members of a class, then just name the class. In the example I gave above (repeated below) I am setting the priors for all beta coefficients in this case (trtL and the various species) to be normal(0,10).
+
+hyp2 <- brm(hyp ~ trt + species + (1|shelf),
+            data = tomato,
+            prior = c(set_prior("normal(0,10)",class="b"), 
+                      set_prior("normal(0,5)",class="b", coef = "trtL")) 
+) 
+
+get_prior(hyp ~ trt + species + (1|shelf),
+          data = tomato)
+hyp2$prior
+
+hyp3 <- brm(hyp ~ trt + species + (1|shelf),
+            data = tomato,
+            prior = c(
+              set_prior("normal(33,10)",class="Intercept"), # prior for the intercept
+              set_prior("normal(0,10)",class="b"), # sets prior for all b coefficients not otherwise specified
+              set_prior("normal(0,5)",class="b", coef = "trtL"), #set prior for "trtL"
+              set_prior("cauchy(0,1)", class = "sigma"), #half cauchy prior for sigma
+              set_prior("normal(0,1)", class = "sd", group = "shelf") #prior for variation due to shelf
+            ) 
+)
+
+?set_prior
+
+hyp4 <- brm(hyp ~ trt + species + (1|shelf),
+            data = tomato,
+            prior = set_prior("normal(0,10)",class="b"), 
+            chains = 4, #the default anyway
+            iter=4000,
+            warmup = 1000,
+            cores = 2
+)
+summary(hyp4)
+plot(hyp4)
+
+hyp5 <- brm(hyp ~ trt * species + (1|shelf), #trt by species interaction
+            data = tomato,
+            prior = set_prior("normal(0,10)",class="b")
+)
+
+summary(hyp5)
+plot(hyp5, ask=FALSE)
+
+waic(hyp1, hyp5)
+loo(hyp1, hyp5)
+
+hyp6 <- brm(hyp ~ species + trt,
+            prior = set_prior("normal(0,10)",class="b"),
+            data = tomato)
+
+hyp7 <- brm(hyp ~ 0 + species + trt,
+            prior = c(
+              set_prior("normal(33,10)", class = "b"), #average species height
+              set_prior("normal(0,10)", class = "b", coef = "trtL")
+              ),
+            data=tomato)
+
+summary(hyp6)
+summary(hyp7)
+loo(hyp6, hyp7)
+
+germination <- read.csv("../Assignment_Chapter_10/LironDataTime1.csv")
+summary(germination)
+head(germination)
+germination$Germination2 <- ifelse(germination$Germination=="Yes",1,0) #need numeric response
+germination$Temperature_b <- germination$Temperature - min(germination$Temperature) #baseline it
+
+germ1 <- brm(Germination2 | trials(1) ~ Species + Temperature_b,
+             family = "binomial",
+             prior=set_prior("normal(0,10)", class="b"),
+             data = germination
+             )
+
+summary(germ1)
+plot(germ1, ask=FALSE)
+
+germ2 <- brm(Germination2  ~ Species + Temperature_b,
+             family = "bernoulli",
+             prior=set_prior("normal(0,10)", class="b"),
+             data = germination
+             )
+
+summary(germ2)
+plot(germ2, ask=FALSE)
+
+summary(hyp1)
+hypothesis(hyp1, "trtL=0")
+plot(hypothesis(hyp1, "trtL=0"))
+summary(hyp1)
+hypothesis(hyp1, "trtL>0")
+plot(hypothesis(hyp1, "trtL>0"))
+hypothesis(hyp1, "speciesS.pennellii-speciesS.habrochaites = 0")
+plot(hypothesis(hyp1, "speciesS.pennellii-speciesS.habrochaites = 0"))
+
+```
+
+# tomorrow to do, add annotation to this intro, finish 3 Qs and think about how to organize the club... 
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
