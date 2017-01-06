@@ -15,16 +15,194 @@ output:
 # Q1
 ```{r}
 # Fit model 10.9 (R code 10.28) with brms. Remember that you should not need to transform the predictors, create dummy variables, nor coerce indexes to use brms. Compare to the map2stan fit. Test whether the coefficient for gender is different from 0 in the brms model.
+
+library(rethinking)
+data("UCBadmit")
+d <- UCBadmit
+head(d)
+
+# R code 10.28 
+# make index, transform predictors 
+d$male <- ifelse( d$applicant.gender=="male" , 1 , 0 ) # create dummy variables 
+d$dept_id <- coerce_index(d$dept) # coerce_index 
+d$dept_id
+?coerce_index
+head(d)
+
+# model with unique intercept for each dept
+# model with male differneces as well 
+m10.9 <- map2stan(
+  alist(
+    admit ~ dbinom(applications, p), 
+    logit(p) <- a[dept_id] + bm*male, # unique intercept for each dept, with gender difference as well 
+    a[dept_id] ~ dnorm(0, 10), 
+    bm ~ dnorm(0, 10)
+  ), data = d,
+  chains = 4, warmup = 1000, iter = 4000)
+
+precis(m10.9, depth = 2)
+
+# set up brms 
+library(brms)
+# don't understand the two below... just remember they are here for setup 
+rstan_options(auto_write = TRUE) 
+options(mc.cores = parallel::detectCores())
+class(d$dept)
+class(d$applicant.gender)
+
+mQ1 <- brm(admit | trials(applications) ~ 0 + dept + applicant.gender, # unique intercept, don't need to transform, use orignial predictors in the data, applications is the trial number 
+           family = "binomial",  # binomial because admit or not 
+           prior = set_prior("normal(0, 10)", class = "b"), # same prior in the beta coeffecient class 
+           data = d) 
+
+summary(mQ1)
+precis(m10.9, depth = 2)
+plot(mQ1, ask=FALSE) 
+# almost same coefficient 
+
+# test the effect of gender 
+hypothesis(mQ1, "applicant.gendermale = 0")
+plot(hypothesis(mQ1, "applicant.gendermale = 0"))
+?hypothesis ### more understanding of this hypothesis function 
+# no evidence of a gender effect 
 ```
 
 # Q2
 ```{r}
 # Refit models 12.1 and 12.2 (Rcode 12.2 and 12.3) with brms
+data("reedfrogs")
+d2 <- reedfrogs
+head(d2)
+
+# transform the data 
+d2$tank <- 1:nrow(d2)
+class(d2$tank)
+head(d2)
+d2$density
+
+# fit 
+m12.1 <- map2stan(
+  alist(
+    surv ~ dbinom(density, p), # binomial model  
+    logit(p) <- a_tank[tank], # unique intercept for each tank 
+    a_tank[tank] ~ dnorm(0, 5)  
+  ), data = d2)
+
+precis(m12.1, depth = 2)  
+
+# mQ2.1 doesn't give me the unique intercetp results... why? because the "tank" variable is not a factor... 
+mQ2.1 <- brm(surv | trials(density) ~ 0 + tank,
+           family = "binomial", 
+           prior = set_prior("normal(0, 5)", class = "b"),
+           data = d2) 
+?as.factor
+
+mQ2.1.right <- brm(surv | trials(density) ~ 0 + as.factor(tank),
+           family = "binomial", 
+           prior = set_prior("normal(0, 5)", class = "b"),
+           data = d2) 
+
+summary(mQ2.1)
+summary(mQ2.1.right)
+precis(m12.1,depth = 2)
+plot(mQ2.1, ask=FALSE) 
+
+coef(m12.1)
+fixef(mQ2.1.right)
+plot(coef(m12.1),fixef(mQ2.1.right), xlab="map2stan", ylab="brms",main= "compare coefficients") 
+
+m12.2 <- map2stan(
+  alist(
+    surv ~ dbinom(density, p),
+    logit(p) <- a_tank[tank],
+    a_tank[tank] ~ dnorm(a, sigma), # multilevel model, learn across tanks 
+    a ~ dnorm(0, 1), # ??? why normal distribution with these prior? 
+    sigma ~ dcauchy(0, 1) # why this cauchy distribution and why these prior? 
+  ), data = d2, iter = 4000, chains = 4)
+
+mQ2.2 <- brm(surv | trials(density) ~  (1|tank), # statistical rethinking Page 357: the type of parameters that appear in multilevel models are most commonly known as random effect. 
+             family = "binomial", 
+             data = d2, 
+             prior = c(
+               set_prior("normal(0,1)", class = "Intercept"), # no fixed effect...fixed is only intercept  
+               set_prior("cauchy(0,1)", class = "sd") # The "sd" class is for the standard deviation of random effects terms.  
+             )
+             ) 
+summary(mQ2.2)
+precis(m12.2, depth = 2)
+
+ranef(mQ2.2) # all random effect 
+fixef(mQ2.2)[,"mean"]
+plot(coef(m12.2)[1:48],ranef(mQ2.2)$tank+fixef(mQ2.2)[,"mean"],xlab="map2stan",ylab="brms")
+# very linear, same result. 
 ```
 
 # Q3
 ```{r}
 # For the tomato data set, use both brms and map2stan to fit a model for intleng as a function of species, trt and their interaction, and include shelf as a random effect.
+# get data and take a look 
+tomato <- read.csv("../Assignment_Chapter_09/TomatoR2CSHL.csv") #adjust path as necesary
+summary(tomato)
+head(tomato)
+tomato$species
+tomato$trt
+
+# transform data for map2stan 
+tomato$trt2 <- ifelse( tomato$trt=="H" , 1 , 0 )
+tomato$species2 <- coerce_index(tomato$species)
+tomato$shelf2 <- coerce_index(tomato$shelf)
+head(tomato)
+mean(tomato$intleng) # 20 
+
+# fit map2stan, two types of clusters species & shelf 
+# shelf as cluster only, refer to m12.4 in statistical rethinking 
+mQ3.map2stan <- map2stan(
+  alist(
+    intleng ~ dnorm(mu, sigma), 
+    mu ~ bs*species2 + bt*trt2 + bts*species2*trt2 + a_shelf[shelf2], # why not add seperarte coefficient for trt and species??? bs(species2) + bt(trt2) + bts(speceis*trt)
+    a_shelf[shelf2] ~ dnorm(20, sigma_shelf),
+    c(bs, bt, bts) ~ dnorm(0, 10),
+    sigma ~ dcauchy(0, 1),
+    sigma_shelf ~ dcauchy(0, 1)
+  ), 
+  data = tomato, 
+  chains = 4, 
+  iter = 5000
+)
+
+precis(mQ3.map2stan, depth = 2) # shouldn't species be considered cluster as well? but the Rhat value is not equal to 1. why??? 
+
+# two types of clusters: species & shelf, multilevel for both, interaction effect on each species differs 
+# mQ3.map2stan.2 <- map2stan(
+#   alist(
+#     intleng ~ dnorm(mu, sigma), 
+#     mu ~ a_species[species2] + bt*trt2 + bts[species2]*trt2 + a_shelf[shelf2], # why not add seperarte coefficient for trt and species??? bs(species2) + bt(trt2) + bts(speceis*trt)
+#     a_species[species2] ~ dnorm(20, 10),
+#     a_shelf[shelf2] ~ dnorm(0, sigma_shelf),
+#     c(bt, bts) ~ dnorm(0, 10),
+#     sigma ~ dcauchy(0, 1), # overall sigma
+#     sigma_shelf ~ dcauchy(0, 1) # sigma for cluster shelf 
+#   ), 
+#   data = tomato, 
+#   chains = 4, 
+#   iter = 5000
+# )
+
+# precis(mQ3.map2stan.2, depth = 2) # now the Rhat looks OK 
+
+# only shelf as random effect 
+mQ3.brms <- brm(intleng ~ trt * species + (1|shelf), 
+                 prior = c(set_prior("normal(0, 10)", class = "b"), # species, trt, and interactions
+                           set_prior("cauchy(0,1)", class="sigma"), # for oeveral sigma
+                           set_prior("cauchy(0,1)", class = "sd") # for both shelf & species 
+                           ),
+                 data=tomato, 
+                 iter=5000
+)
+
+summary(mQ3.brms)
+precis(mQ3.map2stan, depth = 2) 
+
 ```
 
 
