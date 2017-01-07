@@ -214,6 +214,7 @@ plot(germ2, ask=FALSE)
 ```{r}
 # brms includes a function for Bayesian hypothesis testing. See below for an example of how to test if the effect of "trtL" is non-zero (two-sided hypothesis test). Plotting the hypothesis test shows the relevant posterior distributions.
 
+head(tomato)
 summary(hyp1)
 hypothesis(hyp1, "trtL=0")
 plot(hypothesis(hyp1, "trtL=0"))
@@ -229,6 +230,52 @@ plot(hypothesis(hyp1, "speciesS.pennellii-speciesS.habrochaites = 0"))
 # YES??? 
 ```
 
+# miscs
+```{r}
+hyp5.2 <- brm(hyp ~ trt + species + trt:species + (1|shelf), #trt by species interaction
+            data = tomato,
+            prior = set_prior("normal(0,10)",class="b") 
+)
+
+identical(hyp5, hyp5.2) 
+summary(hyp5.2)
+summary(hyp5)
+
+test1 <- brm(admit | trials(applications) ~ 0 + applicant.gender + dept ,
+                  family = "binomial",
+                  prior = set_prior("normal(0,10)", class="b"),
+                  data=d,
+                  warmup = 1000,
+                  iter = 4000
+)
+
+summary(test1)  ### whenever we want use unique intercept for one predictor, that predictor needs to be right after zero...  
+
+test2 <- brm(admit | trials(applications) ~ 0 + applicant.gender + 0 + dept ,
+                  family = "binomial",
+                  prior = set_prior("normal(0,10)", class="b"),
+                  data=d,
+                  warmup = 1000,
+                  iter = 4000
+)
+
+summary(test2)
+
+# predictor needs to be factors !!!! 
+
+test3 <- brm( surv | trials(density) ~ (1|tank),
+                   family="binomial",
+                   prior=c(
+                     set_prior("cauchy(0,1)", class="sd")),
+                   data=d2,
+                   iter=4000) 
+summary(test3)
+summary(mQ2.2) 
+test3$prior 
+
+mQ2.2$prior
+
+```
 
 
 
