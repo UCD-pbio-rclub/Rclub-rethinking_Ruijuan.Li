@@ -1,0 +1,196 @@
+---
+title: "01_12_2017"
+author: "Ruijuan Li"
+date: "1/12/2017"
+output: html_document
+---
+
+# read the manual 
+# Bring remaining questions about BRMS.  JM will try to answer.  If you wished that you had read the manual or help files before last week, do so before this week...
+
+```{r}
+library(brms)
+vignette('brms_overview')
+vignette("brms_overview")
+
+# 1) 
+# something about setup 
+# rstan_options (auto_write=TRUE)
+# options (mc.cores=parallel::detectCores ()) # Run on multiple cores
+# a general setup thing? 
+
+# 2) 
+# explain the result? 
+# group-level effect; population level effect; family specific parameters 
+# sd_shelf_intercept is not normally distributed... what is this about? 
+
+# 3) about shiny 
+# the usage and application of shiny in bioinformatics 
+
+# 4) about fixed & random effect 
+# when to determine an effect should be fixed or random 
+# when to use unique intercept? # use tomato dataset as and example 
+
+# 5) hypothesis testing 
+# don't know how to interpret the result, which is significant, which is not? 
+
+# 6) as.factor(tank) in homework Q2 
+# maybe need all predictors to be factors? 
+
+# 7) in Q3, your map2stan model didn't include trt effect. 
+```
+
+# homework, Fit and interpret a BRMS model to your own data set of your choice.  Be prepared to explain you analysis.
+# fit my rapa data using brms 
+```{r}
+GC.pheno <- read.csv("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/data/shade_avoidance_expt_in_GC.csv",na.string=c("NA","N/A")) # replace all NA w/ N/A (the standard missing data format in R)
+GH.pheno <- read.csv("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/data/shade_avoidance_expt_in_GH.csv", na.string=c("NA","N/A"))
+
+head(GC.pheno)
+head(GH.pheno)
+
+summary(GC.pheno) 
+summary(GH.pheno)
+```
+
+# reformat data, get a factor for rep 
+```{r}
+library("stringr") # to help substring letters use negative to count backwards
+
+# GC 
+names(GC.pheno)[3] <- "gt"
+GC.pheno$rep <- as.factor(str_sub(GC.pheno$barcode,-2,-2))  # 8 reps 
+
+# 
+GC.pheno$height <- GC.pheno$No..of.internodes * GC.pheno$intleng
+head(GC.pheno)
+
+GC.pheno.data <- GC.pheno[, c("gt", "trt", "leaves", "No..of.internodes", "leafl", "leafw", "petleng", "rep", "height")]
+colnames(GC.pheno.data) <- c("gt", "trt", "leaf_No", "internode_No", "leafl_ave", "leafw_ave", "petleng_ave", "rep", "height")
+head(GC.pheno.data)
+
+# GH 
+GH.pheno$rep <- as.factor(GH.pheno$rep)
+GH.pheno$rep 
+head(GH.pheno)
+
+GH.pheno$rep <- as.factor(GH.pheno$rep)
+GH.pheno$rep 
+head(GH.pheno)
+
+GH.pheno$petleng_ave <- round(rowMeans(subset(GH.pheno, select=c("pet1", "pet2", "pet3")), na.rm = T), digits = 1)
+GH.pheno.data <- GH.pheno[, c("trt", "rep", "intleng", "leafleng", "leafwid", "leafnum", "internum", "species", "petleng_ave")]
+colnames(GH.pheno.data) <- c("trt", "rep", "height", "leafl_ave", "leafw_ave", "leaf_No", "internode_No", "gt", "petleng_ave")
+head(GH.pheno.data)
+GH.pheno.data$trt
+``` 
+
+# fit the data using BRMS model 
+```{r}
+# build models for plant height, leaf length average, and leaf width average 
+GC.pheno.data$trt <- relevel(GC.pheno.data$trt, ref = "SUN")
+GC.pheno.data$gt <- relevel(GC.pheno.data$gt, ref = "R500") 
+
+m.GC_height <- brm(height ~ trt * gt + (1|rep), 
+            data = GC.pheno.data,
+            prior = c(set_prior("normal(0,10)",class="b")) # sets prior for all b coefficients  
+) 
+
+summary(m.GC_height)
+fixef(m.GC_height)
+
+m.GC_leafl <- brm(leafl_ave ~ trt * gt + (1|rep), 
+            data = GC.pheno.data,
+            prior = c(set_prior("normal(0,10)",class="b")) # sets prior for all b coefficients  
+) 
+
+summary(m.GC_leafl)
+fixef(m.GC_leafl) 
+
+m.GC_leafw <- brm(leafw_ave ~ trt * gt + (1|rep), 
+            data = GC.pheno.data,
+            prior = c(set_prior("normal(0,10)",class="b")) # sets prior for all b coefficients  
+) 
+
+summary(m.GC_leafw)
+fixef(m.GC_leafw)  
+
+### GH 
+GH.pheno.data$trt <- relevel(GH.pheno.data$trt, ref = "ND")
+GH.pheno.data$gt <- relevel(GH.pheno.data$gt, ref = "R500") 
+
+m.GH_height <- brm(height ~ trt * gt + (1|rep), 
+            data = GH.pheno.data,
+            prior = c(set_prior("normal(0,10)",class="b")) # sets prior for all b coefficients  
+) 
+
+summary(m.GH_height)
+fixef(m.GH_height)
+
+m.GH_leafl <- brm(leafl_ave ~ trt * gt + (1|rep), 
+            data = GH.pheno.data,
+            prior = c(set_prior("normal(0,10)",class="b")) # sets prior for all b coefficients  
+) 
+
+summary(m.GH_leafl)
+fixef(m.GH_leafl) 
+
+m.GH_leafw <- brm(leafw_ave ~ trt * gt + (1|rep), 
+            data = GH.pheno.data,
+            prior = c(set_prior("normal(0,10)",class="b")) # sets prior for all b coefficients  
+) 
+
+summary(m.GH_leafw)
+fixef(m.GH_leafw)  
+```
+
+# test the effect of gt, trt, and gt:trt for each trait 
+```{r}
+### GC 
+summary(m.GC_height)
+# height 
+hypothesis(m.GC_height, "gtIMB211=0")
+hypothesis(m.GC_height, "trtSHADE=0")
+hypothesis(m.GC_height, "trtSHADE:gtIMB211=0")
+# leafl
+hypothesis(m.GC_leafl, "gtIMB211=0")
+hypothesis(m.GC_leafl, "trtSHADE=0")
+hypothesis(m.GC_leafl, "trtSHADE:gtIMB211=0")
+
+hypothesis(m.GC_leafw, "gtIMB211=0")
+hypothesis(m.GC_leafw, "trtSHADE=0")
+hypothesis(m.GC_leafw, "trtSHADE:gtIMB211=0")
+
+### GH 
+summary(m.GH_height)
+# height 
+hypothesis(m.GH_height, "gtIMB211=0")
+hypothesis(m.GH_height, "trtD=0")
+hypothesis(m.GH_height, "trtD:gtIMB211=0")
+# leafl 
+hypothesis(m.GH_leafl, "gtIMB211=0") 
+hypothesis(m.GH_leafl, "trtD=0")
+hypothesis(m.GH_leafl, "trtD:gtIMB211=0")
+# leafw 
+hypothesis(m.GH_height, "gtIMB211=0")
+hypothesis(m.GH_height, "trtD=0")
+hypothesis(m.GH_height, "trtD:gtIMB211=0") 
+```
+
+# output as figure 
+```{r}
+library(ggplot2)
+### GC 
+summary(m.GC_height)    
+fixef(m.GC_height)
+fixef(m.GC_leafl)
+fixef(m.GC_leafw) 
+
+### GH 
+fixef(m.GH_height)
+fixef(m.GH_leafl)
+fixef(m.GH_leafw)
+``` 
+
+
+
