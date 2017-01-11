@@ -2,7 +2,9 @@
 title: "01_12_2017"
 author: "Ruijuan Li"
 date: "1/12/2017"
-output: html_document
+output: 
+  html_document: 
+    keep_md: yes
 ---
 
 # read the manual 
