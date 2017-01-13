@@ -462,9 +462,9 @@ m.GC_height <- brm(height ~ trt * gt + (1|rep),
 ## Chain 1, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 1, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 1, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.27881 seconds (Warm-up)
-##                0.132769 seconds (Sampling)
-##                0.411579 seconds (Total)
+##  Elapsed Time: 0.283649 seconds (Warm-up)
+##                0.135124 seconds (Sampling)
+##                0.418773 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 2).
@@ -481,9 +481,9 @@ m.GC_height <- brm(height ~ trt * gt + (1|rep),
 ## Chain 2, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 2, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 2, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.313573 seconds (Warm-up)
-##                0.137353 seconds (Sampling)
-##                0.450926 seconds (Total)
+##  Elapsed Time: 0.320669 seconds (Warm-up)
+##                0.139208 seconds (Sampling)
+##                0.459877 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 3).
@@ -500,9 +500,9 @@ m.GC_height <- brm(height ~ trt * gt + (1|rep),
 ## Chain 3, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 3, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 3, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.299347 seconds (Warm-up)
-##                0.154175 seconds (Sampling)
-##                0.453522 seconds (Total)
+##  Elapsed Time: 0.293187 seconds (Warm-up)
+##                0.150381 seconds (Sampling)
+##                0.443568 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 4).
@@ -519,9 +519,9 @@ m.GC_height <- brm(height ~ trt * gt + (1|rep),
 ## Chain 4, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 4, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 4, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.307313 seconds (Warm-up)
-##                0.178488 seconds (Sampling)
-##                0.485801 seconds (Total)
+##  Elapsed Time: 0.303982 seconds (Warm-up)
+##                0.148627 seconds (Sampling)
+##                0.452609 seconds (Total)
 ```
 
 ```
@@ -610,9 +610,9 @@ m.GC_leafl <- brm(leafl_ave ~ trt * gt + (1|rep),
 ## Chain 1, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 1, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 1, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.241305 seconds (Warm-up)
-##                0.180149 seconds (Sampling)
-##                0.421454 seconds (Total)
+##  Elapsed Time: 0.233142 seconds (Warm-up)
+##                0.204117 seconds (Sampling)
+##                0.437259 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 2).
@@ -629,9 +629,9 @@ m.GC_leafl <- brm(leafl_ave ~ trt * gt + (1|rep),
 ## Chain 2, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 2, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 2, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.298864 seconds (Warm-up)
-##                0.203236 seconds (Sampling)
-##                0.5021 seconds (Total)
+##  Elapsed Time: 0.317347 seconds (Warm-up)
+##                0.205014 seconds (Sampling)
+##                0.522361 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 3).
@@ -648,9 +648,9 @@ m.GC_leafl <- brm(leafl_ave ~ trt * gt + (1|rep),
 ## Chain 3, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 3, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 3, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.279173 seconds (Warm-up)
-##                0.174646 seconds (Sampling)
-##                0.453819 seconds (Total)
+##  Elapsed Time: 0.27308 seconds (Warm-up)
+##                0.166383 seconds (Sampling)
+##                0.439463 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 4).
@@ -667,9 +667,9 @@ m.GC_leafl <- brm(leafl_ave ~ trt * gt + (1|rep),
 ## Chain 4, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 4, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 4, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.267333 seconds (Warm-up)
-##                0.182283 seconds (Sampling)
-##                0.449616 seconds (Total)
+##  Elapsed Time: 0.253781 seconds (Warm-up)
+##                0.179187 seconds (Sampling)
+##                0.432968 seconds (Total)
 ```
 
 ```r
@@ -749,9 +749,9 @@ m.GC_leafw <- brm(leafw_ave ~ trt * gt + (1|rep),
 ## Chain 1, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 1, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 1, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.176225 seconds (Warm-up)
-##                0.120671 seconds (Sampling)
-##                0.296896 seconds (Total)
+##  Elapsed Time: 0.165527 seconds (Warm-up)
+##                0.110674 seconds (Sampling)
+##                0.276201 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 2).
@@ -768,9 +768,9 @@ m.GC_leafw <- brm(leafw_ave ~ trt * gt + (1|rep),
 ## Chain 2, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 2, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 2, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.205076 seconds (Warm-up)
-##                0.146971 seconds (Sampling)
-##                0.352047 seconds (Total)
+##  Elapsed Time: 0.191706 seconds (Warm-up)
+##                0.147323 seconds (Sampling)
+##                0.339029 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 3).
@@ -787,9 +787,9 @@ m.GC_leafw <- brm(leafw_ave ~ trt * gt + (1|rep),
 ## Chain 3, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 3, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 3, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.216612 seconds (Warm-up)
-##                0.153492 seconds (Sampling)
-##                0.370104 seconds (Total)
+##  Elapsed Time: 0.201728 seconds (Warm-up)
+##                0.138867 seconds (Sampling)
+##                0.340595 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 4).
@@ -806,9 +806,9 @@ m.GC_leafw <- brm(leafw_ave ~ trt * gt + (1|rep),
 ## Chain 4, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 4, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 4, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.187935 seconds (Warm-up)
-##                0.154916 seconds (Sampling)
-##                0.342851 seconds (Total)
+##  Elapsed Time: 0.184343 seconds (Warm-up)
+##                0.150618 seconds (Sampling)
+##                0.334961 seconds (Total)
 ```
 
 ```
@@ -895,9 +895,9 @@ m.GH_height <- brm(height ~ trt * gt + (1|rep),
 ## Chain 1, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 1, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 1, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.206754 seconds (Warm-up)
-##                0.146888 seconds (Sampling)
-##                0.353642 seconds (Total)
+##  Elapsed Time: 0.272874 seconds (Warm-up)
+##                0.190984 seconds (Sampling)
+##                0.463858 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 2).
@@ -914,9 +914,9 @@ m.GH_height <- brm(height ~ trt * gt + (1|rep),
 ## Chain 2, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 2, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 2, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.218149 seconds (Warm-up)
-##                0.177984 seconds (Sampling)
-##                0.396133 seconds (Total)
+##  Elapsed Time: 0.307529 seconds (Warm-up)
+##                0.179306 seconds (Sampling)
+##                0.486835 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 3).
@@ -933,9 +933,9 @@ m.GH_height <- brm(height ~ trt * gt + (1|rep),
 ## Chain 3, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 3, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 3, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.256631 seconds (Warm-up)
-##                0.131085 seconds (Sampling)
-##                0.387716 seconds (Total)
+##  Elapsed Time: 0.330163 seconds (Warm-up)
+##                0.153623 seconds (Sampling)
+##                0.483786 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 4).
@@ -952,9 +952,9 @@ m.GH_height <- brm(height ~ trt * gt + (1|rep),
 ## Chain 4, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 4, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 4, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.220876 seconds (Warm-up)
-##                0.13388 seconds (Sampling)
-##                0.354756 seconds (Total)
+##  Elapsed Time: 0.243635 seconds (Warm-up)
+##                0.180133 seconds (Sampling)
+##                0.423768 seconds (Total)
 ```
 
 ```
@@ -1037,9 +1037,9 @@ m.GH_leafl <- brm(leafl_ave ~ trt * gt + (1|rep),
 ## Chain 1, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 1, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 1, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.232567 seconds (Warm-up)
-##                0.1509 seconds (Sampling)
-##                0.383467 seconds (Total)
+##  Elapsed Time: 0.230911 seconds (Warm-up)
+##                0.149618 seconds (Sampling)
+##                0.380529 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 2).
@@ -1056,9 +1056,9 @@ m.GH_leafl <- brm(leafl_ave ~ trt * gt + (1|rep),
 ## Chain 2, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 2, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 2, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.184697 seconds (Warm-up)
-##                0.13036 seconds (Sampling)
-##                0.315057 seconds (Total)
+##  Elapsed Time: 0.195252 seconds (Warm-up)
+##                0.123631 seconds (Sampling)
+##                0.318883 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 3).
@@ -1075,9 +1075,9 @@ m.GH_leafl <- brm(leafl_ave ~ trt * gt + (1|rep),
 ## Chain 3, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 3, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 3, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.189158 seconds (Warm-up)
-##                0.103774 seconds (Sampling)
-##                0.292932 seconds (Total)
+##  Elapsed Time: 0.190318 seconds (Warm-up)
+##                0.106805 seconds (Sampling)
+##                0.297123 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 4).
@@ -1094,9 +1094,9 @@ m.GH_leafl <- brm(leafl_ave ~ trt * gt + (1|rep),
 ## Chain 4, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 4, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 4, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.171317 seconds (Warm-up)
-##                0.086613 seconds (Sampling)
-##                0.25793 seconds (Total)
+##  Elapsed Time: 0.190253 seconds (Warm-up)
+##                0.09009 seconds (Sampling)
+##                0.280343 seconds (Total)
 ```
 
 ```
@@ -1183,9 +1183,9 @@ m.GH_leafw <- brm(leafw_ave ~ trt * gt + (1|rep),
 ## Chain 1, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 1, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 1, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.21817 seconds (Warm-up)
-##                0.160044 seconds (Sampling)
-##                0.378214 seconds (Total)
+##  Elapsed Time: 0.228731 seconds (Warm-up)
+##                0.164657 seconds (Sampling)
+##                0.393388 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 2).
@@ -1202,9 +1202,9 @@ m.GH_leafw <- brm(leafw_ave ~ trt * gt + (1|rep),
 ## Chain 2, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 2, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 2, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.179558 seconds (Warm-up)
-##                0.146506 seconds (Sampling)
-##                0.326064 seconds (Total)
+##  Elapsed Time: 0.194811 seconds (Warm-up)
+##                0.158948 seconds (Sampling)
+##                0.353759 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 3).
@@ -1221,9 +1221,9 @@ m.GH_leafw <- brm(leafw_ave ~ trt * gt + (1|rep),
 ## Chain 3, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 3, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 3, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.209379 seconds (Warm-up)
-##                0.225072 seconds (Sampling)
-##                0.434451 seconds (Total)
+##  Elapsed Time: 0.23902 seconds (Warm-up)
+##                0.264261 seconds (Sampling)
+##                0.503281 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'gaussian(identity) brms-model' NOW (CHAIN 4).
@@ -1240,9 +1240,9 @@ m.GH_leafw <- brm(leafw_ave ~ trt * gt + (1|rep),
 ## Chain 4, Iteration: 1600 / 2000 [ 80%]  (Sampling)
 ## Chain 4, Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 4, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.18709 seconds (Warm-up)
-##                0.163315 seconds (Sampling)
-##                0.350405 seconds (Total)
+##  Elapsed Time: 0.202244 seconds (Warm-up)
+##                0.16892 seconds (Sampling)
+##                0.371164 seconds (Total)
 ```
 
 ```r
@@ -1585,6 +1585,29 @@ hypothesis(m.GH_height, "trtD:gtIMB211=0")
 
 ```r
 library(ggplot2)
+
+plot.model <- function(data){
+  tmp <- as.data.frame(fixef(data))
+  tmp$trt <- rep(c("SUN", "SHADE"), 2)
+  tmp$gt <- c("R500","R500","IMB211","IMB211")
+  tmp$mean[4] <- sum(tmp$mean) 
+  tmp$mean[2] <- tmp$mean[1] + tmp$mean[2] 
+  tmp$mean[3] <- tmp$mean[1] + tmp$mean[3]
+
+  tmp$trt <- factor(tmp$trt, c("SUN", "SHADE"))
+  tmp$gt <- factor(tmp$gt, c("R500", "IMB211"))
+
+  pl <- ggplot(data=tmp)
+  pl <- pl + geom_bar(mapping=aes(fill=trt,x=trt,y=mean),stat="identity")
+  # pl <- pl + scale_fill_manual(values = c("SUN" = "red","SHADE" = "darkred"))  
+  pl <- pl + facet_wrap(facets=~gt)
+  # pl <- pl + geom_errorbar(mapping=aes(x=trt,ymin=ymin,ymax=ymax), position=position_dodge(width=0.9),width=0.5)
+  # pl <- pl + geom_text(data=tmp,aes(x=trt,y=ymax*1.05), label=factor(tmp$significance), size=5) 
+  pl <- pl + labs(list(x=" ", y="mean"))
+  return(pl) 
+}  
+ 
+
 ### GC 
 summary(m.GC_height) 
 ```
@@ -1681,40 +1704,40 @@ fixef(m.GH_leafw)
 ```
 
 ```r
-plot(m.GC_height)
+plot.model(m.GC_height)
 ```
 
-![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-1.png)![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-2.png)
+![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-1.png)
 
 ```r
-plot(m.GC_leafl)
+plot.model(m.GC_leafl)
 ```
 
-![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-3.png)![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-4.png)
+![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-2.png)
 
 ```r
-plot(m.GC_leafw)
+plot.model(m.GC_leafw)
 ```
 
-![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-5.png)![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-6.png)
+![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-3.png)
 
 ```r
-plot(m.GH_height)
+plot.model(m.GH_height)
 ```
 
-![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-7.png)![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-8.png)
+![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-4.png)
 
 ```r
-plot(m.GH_leafl)
+plot.model(m.GH_leafl)
 ```
 
-![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-9.png)![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-10.png)
+![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-5.png)
 
 ```r
-plot(m.GH_leafw)
+plot.model(m.GH_leafw) 
 ```
 
-![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-11.png)![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-12.png)
+![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-6.png)
 
 ```r
 height_GC$trt <- rep(c("SUN", "SHADE"), 2)
@@ -1748,30 +1771,7 @@ pl <- pl + labs(list(x=" ", y="mean"))
 pl
 ```
 
-![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-13.png)
-
-```r
-plot <- function(data){
-  tmp <- as.data.frame(fixef(data))
-tmp$trt <- rep(c("SUN", "SHADE"), 2)
-tmp$gt <- c("R500","R500","IMB211","IMB211")
-tmp$mean[4] <- sum(tmp$mean) 
-tmp$mean[2] <- tmp$mean[1] + tmp$mean[2] 
-tmp$mean[3] <- tmp$mean[1] + tmp$mean[3]
-
-tmp$trt <- factor(tmp$trt, c("SUN", "SHADE"))
-tmp$gt <- factor(tmp$gt, c("R500", "IMB211"))
-
-pl <- ggplot(data=tmp)
-pl <- pl + geom_bar(mapping=aes(fill=trt,x=trt,y=mean),stat="identity")
-# pl <- pl + scale_fill_manual(values = c("SUN" = "red","SHADE" = "darkred"))  
-pl <- pl + facet_wrap(facets=~gt)
-# pl <- pl + geom_errorbar(mapping=aes(x=trt,ymin=ymin,ymax=ymax), position=position_dodge(width=0.9),width=0.5)
-# pl <- pl + geom_text(data=tmp,aes(x=trt,y=ymax*1.05), label=factor(tmp$significance), size=5) 
-pl <- pl + labs(list(x=" ", y="mean"))
-return(pl) 
-} 
-```
+![](Assignment_01_12_2017_files/figure-html/unnamed-chunk-6-7.png)
 
 
 
