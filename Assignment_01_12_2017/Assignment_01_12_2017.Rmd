@@ -13,7 +13,6 @@ output:
 ```{r}
 library(brms)
 vignette('brms_overview')
-vignette("brms_overview")
 
 # 1) 
 # something about setup 
@@ -183,8 +182,8 @@ hypothesis(m.GH_height, "trtD:gtIMB211=0")
 ```{r}
 library(ggplot2)
 ### GC 
-summary(m.GC_height)    
-fixef(m.GC_height)
+summary(m.GC_height) 
+height_GC <- as.data.frame(fixef(m.GC_height))
 fixef(m.GC_leafl)
 fixef(m.GC_leafw) 
 
@@ -192,6 +191,57 @@ fixef(m.GC_leafw)
 fixef(m.GH_height)
 fixef(m.GH_leafl)
 fixef(m.GH_leafw)
+
+plot(m.GC_height)
+plot(m.GC_leafl)
+plot(m.GC_leafw)
+
+plot(m.GH_height)
+plot(m.GH_leafl)
+plot(m.GH_leafw)
+
+height_GC$trt <- rep(c("SUN", "SHADE"), 2)
+height_GC$gt <- c("R500","R500","IMB211","IMB211")
+height_GC$mean[4] <- sum(height_GC$mean) 
+height_GC$mean[2] <- height_GC$mean[1] + height_GC$mean[2] 
+height_GC$mean[3] <- height_GC$mean[1] + height_GC$mean[3]
+height_GC
+
+height_GC$trt <- factor(height_GC$trt, c("SUN", "SHADE"))
+height_GC$gt <- factor(height_GC$gt, c("R500", "IMB211"))
+
+pl <- ggplot(data=height_GC)
+pl <- pl + geom_bar(mapping=aes(fill=trt,x=trt,y=mean),stat="identity")
+# pl <- pl + scale_fill_manual(values = c("SUN" = "red","SHADE" = "darkred"))  
+pl <- pl + facet_wrap(facets=~gt)
+# pl <- pl + geom_errorbar(mapping=aes(x=trt,ymin=ymin,ymax=ymax), position=position_dodge(width=0.9),width=0.5)
+# pl <- pl + geom_text(data=tmp,aes(x=trt,y=ymax*1.05), label=factor(tmp$significance), size=5) 
+pl <- pl + labs(list(x=" ", y="mean"))
+
+pl
+
+
+plot <- function(data){
+  tmp <- as.data.frame(fixef(data))
+tmp$trt <- rep(c("SUN", "SHADE"), 2)
+tmp$gt <- c("R500","R500","IMB211","IMB211")
+tmp$mean[4] <- sum(tmp$mean) 
+tmp$mean[2] <- tmp$mean[1] + tmp$mean[2] 
+tmp$mean[3] <- tmp$mean[1] + tmp$mean[3]
+
+tmp$trt <- factor(tmp$trt, c("SUN", "SHADE"))
+tmp$gt <- factor(tmp$gt, c("R500", "IMB211"))
+
+pl <- ggplot(data=tmp)
+pl <- pl + geom_bar(mapping=aes(fill=trt,x=trt,y=mean),stat="identity")
+# pl <- pl + scale_fill_manual(values = c("SUN" = "red","SHADE" = "darkred"))  
+pl <- pl + facet_wrap(facets=~gt)
+# pl <- pl + geom_errorbar(mapping=aes(x=trt,ymin=ymin,ymax=ymax), position=position_dodge(width=0.9),width=0.5)
+# pl <- pl + geom_text(data=tmp,aes(x=trt,y=ymax*1.05), label=factor(tmp$significance), size=5) 
+pl <- pl + labs(list(x=" ", y="mean"))
+return(pl) 
+} 
+
 ``` 
 
 
