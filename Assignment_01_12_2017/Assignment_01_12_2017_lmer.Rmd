@@ -2,7 +2,9 @@
 title: "phenotype_data_analysis_final_final"
 author: "Ruijuan Li"
 date: "September 12, 2016"
-output: html_document
+output: 
+  html_document: 
+    keep_md: yes
 ---
 
 ```{r}
@@ -12,7 +14,6 @@ output: html_document
 
 # import data 
 ```{r}
-setwd("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/analysis")
 GC.pheno <- read.csv("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/data/shade_avoidance_expt_in_GC.csv",na.string=c("NA","N/A")) # replace all NA w/ N/A (the standard missing data format in R)
 GH.pheno <- read.csv("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/data/shade_avoidance_expt_in_GH.csv", na.string=c("NA","N/A"))
 
@@ -26,7 +27,6 @@ summary(GH.pheno)
 # reformat data, get a factor for rep 
 ```{r}
 library("stringr") # to help substring letters use negative to count backwards
-source("function_BrRNAseq.R")
 
 # GC 
 names(GC.pheno)[3] <- "gt"
@@ -58,23 +58,6 @@ library(lmerTest) #loads lmerTest and lme4
 library(ggplot2)
 ```
 
-# check data distribution by plotting
-```{r}
-pheno.plot(GC.pheno.data, GC.pheno.data$leaf_No)
-pheno.plot(GC.pheno.data, GC.pheno.data$internode_No)
-pheno.plot(GC.pheno.data, GC.pheno.data$leafl_ave)
-pheno.plot(GC.pheno.data, GC.pheno.data$leafw_ave)
-pheno.plot(GC.pheno.data, GC.pheno.data$petleng_ave)
-pheno.plot(GC.pheno.data, GC.pheno.data$height)
-
-pheno.plot(GH.pheno.data, GH.pheno.data$intleng_ave)
-pheno.plot(GH.pheno.data, GH.pheno.data$leafl_ave)
-pheno.plot(GH.pheno.data, GH.pheno.data$leafw_ave)
-pheno.plot(GH.pheno.data, GH.pheno.data$leaf_No)
-pheno.plot(GH.pheno.data, GH.pheno.data$internode_No)
-pheno.plot(GH.pheno.data, GH.pheno.data$petleng_ave)
-```
-
 # mixed-effect linear model selection (rep as random effect), using all original data scale 
 ```{r}
 # GC
@@ -99,8 +82,7 @@ lmer.petleng_ave.GC <- lmer(petleng_ave ~ gt * trt + (1|rep), data = GC.pheno.da
 summary.petleng_ave.GC <- summary(lmer.petleng_ave.GC)$coefficient
 
 lmer.height.GC <- lmer(height ~ gt * trt + (1|rep), data = GC.pheno.data)
-summary.height.GC <- summary(lmer.height.GC)$coefficient
-
+summary.height.GC <- summary(lmer.height.GC)$coefficient 
 
 # GH 
 # R500_SUN as ref level 
@@ -123,13 +105,13 @@ lmer.internode_No.GH <- lmer(internode_No ~ gt * trt + (1|rep), data = GH.pheno.
 summary.internode_No.GH <- summary(lmer.internode_No.GH)$coefficient
 
 lmer.petleng_ave.GH <- lmer(petleng_ave ~ trt + (1|rep), data = GH.pheno.data) # petleng only has data for one gt 
-summary.petleng_ave.GH <- summary(lmer.petleng_ave.GH)$coefficient 
+summary.petleng_ave.GH <- summary(lmer.petleng_ave.GH)$coefficient  
 ```
 
 # function for plot 
 ```{r}
 ### make plot for trait test 
-pheno.plot.result.GC <- function(data, data2){
+pheno.plot.result.GC <- function(data){
   tmp <- as.data.frame(data[,c("Estimate", "Std. Error", "Pr(>|t|)")])
   colnames(tmp) <- c("mean", "SE", "pvalue")
   
@@ -164,7 +146,7 @@ pheno.plot.result.GC <- function(data, data2){
   return(pl) 
 } 
 
-pheno.plot.result.GH <- function(data, data2){
+pheno.plot.result.GH <- function(data){
   tmp <- as.data.frame(data[,c("Estimate", "Std. Error", "Pr(>|t|)")])
   colnames(tmp) <- c("mean", "SE", "pvalue")
   
@@ -185,8 +167,6 @@ pheno.plot.result.GH <- function(data, data2){
   tmp$significance[1] <- ""
   if (tmp$pvalue[3] < 0.05){tmp$significance[2] <- "*"}
   if (tmp$pvalue[2] < 0.05){tmp$significance[3] <- "*"}
-  # if (data2[,"Pr(>|t|)"][3] < 0.05 && tmp$pvalue[4] < 0.05){tmp$significance[4] <- "*&"}
-  # if (data2[,"Pr(>|t|)"][3] < 0.05 && tmp$pvalue[4] > 0.05){tmp$significance[4] <- "*"}
   if (tmp$pvalue[4] < 0.05){tmp$significance[4] <- "*"}
   
   pl <- ggplot(data=tmp)
@@ -200,94 +180,54 @@ pheno.plot.result.GH <- function(data, data2){
 } 
 ```
 
-
 # make the lmer result summary plot  
 ```{r}
 library(cowplot)
 head(GC.pheno.data)
 
-pheno.plot.result.GC(summary.leaf_No.GC, summary.leaf_No.GC.2)
-plot.leaf_No.GC <- pheno.plot.result.GC(summary.leaf_No.GC, summary.leaf_No.GC.2)
+pheno.plot.result.GC(summary.leaf_No.GC)
+plot.leaf_No.GC <- pheno.plot.result.GC(summary.leaf_No.GC)
 # ggsave("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/plot.leaf_No.GC.png", width = 11, height = 8)
 
-pheno.plot.result.GC(summary.internode_No.GC, summary.internode_No.GC.2)
-plot.internode_No.GC <- pheno.plot.result.GC(summary.internode_No.GC, summary.internode_No.GC.2)
+pheno.plot.result.GC(summary.internode_No.GC)
+plot.internode_No.GC <- pheno.plot.result.GC(summary.internode_No.GC)
 # ggsave("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/plot.internode_No.GC.png", width = 11, height = 8)
 
-pheno.plot.result.GC(summary.leafl_ave.GC, summary.leafl_ave.GC.2)
-plot.leafl_ave.GC <- pheno.plot.result.GC(summary.leafl_ave.GC, summary.leafl_ave.GC.2)
+pheno.plot.result.GC(summary.leafl_ave.GC)
+plot.leafl_ave.GC <- pheno.plot.result.GC(summary.leafl_ave.GC)
 # ggsave("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/plot.leafl_ave_GC.png", width = 11, height = 8)
 
-pheno.plot.result.GC(summary.leafw_ave.GC, summary.leafw_ave.GC.2)
-plot.leafw_ave.GC <- pheno.plot.result.GC(summary.leafw_ave.GC, summary.leafw_ave.GC.2)
+pheno.plot.result.GC(summary.leafw_ave.GC)
+plot.leafw_ave.GC <- pheno.plot.result.GC(summary.leafw_ave.GC)
 # ggsave("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/plot.leafw_ave.GC.png", width = 11, height = 8)
 
-pheno.plot.result.GC(summary.petleng_ave.GC, summary.petleng_ave.GC.2)
-plot.petleng_ave.GC <- pheno.plot.result.GC(summary.petleng_ave.GC, summary.petleng_ave.GC.2)
+pheno.plot.result.GC(summary.petleng_ave.GC)
+plot.petleng_ave.GC <- pheno.plot.result.GC(summary.petleng_ave.GC)
 # ggsave("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/plot.petleng_ave.GC.png", width = 11, height = 8)
 
-pheno.plot.result.GC(summary.height.GC, summary.height.GC.2)
-plot.height.GC <- pheno.plot.result.GC(summary.height.GC, summary.height.GC.2)
+pheno.plot.result.GC(summary.height.GC)
+plot.height.GC <- pheno.plot.result.GC(summary.height.GC)
 # ggsave("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/plot.height.GC.png", width = 11, height = 8)
 
-plot.all.GC<-plot_grid(
-  plot.height.GC+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="height"),
-  plot.internode_No.GC+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="internode number"),
-  plot.leafl_ave.GC+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="leaf length average"),
-  plot.leaf_No.GC+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="leaf number"),
-  plot.leafw_ave.GC+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="leaf width average"),
-  plot.petleng_ave.GC+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="petiole length average"),
-  ncol=3, nrow = 2,labels=c("","","",""))
-
-plot.all.GC
-# save_plot("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/plot.all.GC.png", plot.all.GC, ncol = 3, nrow = 2,base_aspect_ratio = 0.8)
-
-pheno.plot.result.GH(summary.height.GH, summary.height.GH.2)
-plot.height.GH <- pheno.plot.result.GH(summary.height.GH, summary.height.GH.2)
+pheno.plot.result.GH(summary.height.GH)
+plot.height.GH <- pheno.plot.result.GH(summary.height.GH)
 # ggsave("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/plot.height.GH.png", width = 11, height = 8)
 
-pheno.plot.result.GH(summary.leafl_ave.GH, summary.leafl_ave.GH.2)
-plot.leafl_ave.GH <- pheno.plot.result.GH(summary.leafl_ave.GH, summary.leafl_ave.GH.2)
+pheno.plot.result.GH(summary.leafl_ave.GH)
+plot.leafl_ave.GH <- pheno.plot.result.GH(summary.leafl_ave.GH)
 # ggsave("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/plot.leafl_ave.GH.png", width = 11, height = 8)
 
-pheno.plot.result.GH(summary.leafw_ave.GH, summary.leafw_ave.GH.2)
-plot.leafw_ave.GH <- pheno.plot.result.GH(summary.leafw_ave.GH, summary.leafw_ave.GH.2)
+pheno.plot.result.GH(summary.leafw_ave.GH)
+plot.leafw_ave.GH <- pheno.plot.result.GH(summary.leafw_ave.GH)
 # ggsave("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/plot.leafw_ave.GH.png", width = 11, height = 8)
 
-pheno.plot.result.GH(summary.leaf_No.GH, summary.leaf_No.GH.2)
-plot.leaf_No.GH <- pheno.plot.result.GH(summary.leaf_No.GH, summary.leaf_No.GH.2)
+pheno.plot.result.GH(summary.leaf_No.GH)
+plot.leaf_No.GH <- pheno.plot.result.GH(summary.leaf_No.GH)
 # ggsave("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/plot.leaf_No.GH.png", width = 11, height = 8)
 
-pheno.plot.result.GH(summary.internode_No.GH, summary.internode_No.GH.2)
-plot.internode_No.GH <- pheno.plot.result.GH(summary.internode_No.GH, summary.internode_No.GH.2)
+pheno.plot.result.GH(summary.internode_No.GH)
+plot.internode_No.GH <- pheno.plot.result.GH(summary.internode_No.GH)
 # ggsave("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/plot.internode.GH.png", width = 11, height = 8)
-
-pheno.plot.result.GH(summary.petleng_ave.GH, summary.petleng_ave.GH.2)
-plot.petleng_ave.GH <- pheno.plot.result.GH(summary.petleng_ave.GH, summary.petleng_ave.GH.2)
-# ggsave("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/plot.petleng_ave.GH.png", width = 11, height = 8)
-
-plot.all.GH<-plot_grid(
-  plot.height.GH+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="height"),
-  plot.internode_No.GH+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="internode number"),
-  plot.leafl_ave.GH+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="leaf length average"),
-  plot.leaf_No.GH+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="leaf number"),
-  plot.leafw_ave.GH+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="leaf width average"),
-  ncol=3, nrow = 2,labels=c("","","",""))
-
-plot.all.GH
-# save_plot("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/plot.all.GH.png", plot.all.GH, ncol = 3, nrow = 2,base_aspect_ratio = 0.8)
-### save plot 
-
-### for faculty retreat 
-plot.all<-plot_grid(
-  plot.height.GC+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="height"),
-  plot.leafl_ave.GC+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="leaf length"),
-  plot.height.GH+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="height"),
-  plot.leafl_ave.GH+theme(legend.position="none",axis.text.x=element_text(size=8,vjust=0.5))+labs(title="leaf length"),
-  ncol=2, nrow = 2,labels=c("","","",""))
-
-plot.all
-save_plot("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/plot.all.png", plot.all, ncol = 3, nrow = 2,base_aspect_ratio = 0.8) 
 
 ### for rapa paper 
 plot.all.paper <-plot_grid(
@@ -299,46 +239,10 @@ plot.all.paper <-plot_grid(
   plot.leafw_ave.GH+theme(legend.position="none",axis.text.x=element_blank())+labs(title=" ", y="mm", x="", fill=""),
   ncol=3, nrow = 2,labels=c("","","",""))  
 
-plot.all.paper 
-save_plot("/Users/ruijuanli/Desktop/Brassica_project/RNA_seq/output/figure/figure1.png", plot.all.paper, ncol = 3, nrow = 2,base_aspect_ratio = 0.8)  
+plot.all.paper   
 
 ```
 
-# test 
-```{r}
-tmp <- as.data.frame(summary.leafl_ave.GH[,c("Estimate", "Std. Error", "Pr(>|t|)")])
-  colnames(tmp) <- c("mean", "SE", "pvalue")
-  
-  tmp$gt <- rep(c("R500", "IMB211"), 2)
-  tmp$trt <- c("SUN","SUN","SHADE","SHADE")
-  
-  tmp$mean[4] = sum(tmp$mean)
-  tmp$mean[2] = tmp$mean[1]+tmp$mean[2]
-  tmp$mean[3] = tmp$mean[1]+tmp$mean[3]
-  
-  tmp$ymin <- tmp$mean - tmp$SE
-  tmp$ymax <- tmp$mean + tmp$SE
-  
-  tmp$trt <- factor(tmp$trt, c("SUN", "SHADE"))
-  tmp$gt <- factor(tmp$gt, c("R500", "IMB211"))
-  
-  # add significance level
-  tmp$significance[1] <- ""
-  if (tmp$pvalue[3] < 0.05){tmp$significance[2] <- "*"}
-  if (tmp$pvalue[2] < 0.05){tmp$significance[3] <- "*"}
-  # if (data2[,"Pr(>|t|)"][3] < 0.05 && tmp$pvalue[4] < 0.05){tmp$significance[4] <- "*&"}
-  # if (data2[,"Pr(>|t|)"][3] < 0.05 && tmp$pvalue[4] > 0.05){tmp$significance[4] <- "*"}
-  if (tmp$pvalue[4] < 0.05){tmp$significance[4] <- "*"}
-  
-  pl <- ggplot(data=tmp)
-  pl <- pl + geom_bar(mapping=aes(fill=trt,x=trt,y=mean),stat="identity") 
-  pl <- pl + scale_fill_manual(values = c("SUN" = "red","SHADE" = "darkred"))
-  pl <- pl + facet_wrap(facets=~gt)
-  pl <- pl + geom_errorbar(mapping=aes(x=trt,ymin=ymin,ymax=ymax), position=position_dodge(width=0.9),width=0.5) 
-  pl <- pl + geom_text(data=tmp,aes(x=trt,y=ymax*1.05), label=factor(tmp$significance), size=5)
-  pl <- pl + labs(list(x=" ", y="mean"))
-  pl    
-```
 
 
 
