@@ -1,0 +1,218 @@
+---
+title: "Chapter-13-assignment-01"
+author: "Ruijuan Li"
+date: "1/27/2017"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r}
+# 13E1 add to the the following model varying slopes on the predictor x. 
+# see attached figure 
+```
+
+```{r}
+# 13E2. Think up a context in which varying intercepts will be positively correlated with varying slopes. Provide a mechanistic explanation for the correlation. 
+
+# higher intercept with a higer slope... don't have a good example now... come back later... 
+```
+
+```{r}
+# Repeat the café robot simulation from the beginning of the chapter. This time, set rho to zero, so that there is no correlation between intercepts and slopes. How does the posterior distribution of the correlation reflect this change in the underlying simulation? 
+
+library(rethinking)
+# simulate data 
+
+a <- 3.5 # average morning wait time
+b <- (-1) # average difference afternnon wait time
+sigma_a <- 1 # std dev in intercepts
+sigma_b <- 0.5 # std dev in slopes
+rho <- 0 # correlation between intercepts and slopes
+
+Mu <- c(a, b)
+
+cov_ab <- sigma_a*sigma_b*rho
+Sigma <- matrix(c(sigma_a^2, cov_ab, cov_ab, sigma_b^2), ncol = 2)
+matrix(c(1,2,3,4), nrow = 2, ncol = 2)
+
+N_cafes <- 20 # number of cafes 
+
+library(MASS)
+set.seed(5) # used to replicate examples
+vary_effects <- mvrnorm(N_cafes, Mu, Sigma)
+vary_effects
+
+a_cafe <- vary_effects[,1]
+b_cafe <- vary_effects[,2]
+
+# simulate robot visit to cafes and collecting data 
+N_visits <- 10 # number of visit 
+afternoon <- rep(0:1, N_visits*N_cafes/2) # robot visit to cafes, 20 in total, 10 visit to each, 1 indicate
+# in the afternoon, 0 indicate in the morning. 
+length(afternoon) # 200 
+cafe_id <- rep(1:N_cafes, each=N_visits) # repeat 10 times of each cafe 
+
+mu <- a_cafe[cafe_id] + b_cafe[cafe_id]*afternoon # generate average waiting time for each cafe? 
+# what this code is doing? 
+sigma <- 0.5 # std dev within cafes 
+wait <- rnorm(N_visits*N_cafes, mu, sigma) # simulate wait time based using mu and sigma 
+d <- data.frame(cafe=cafe_id, afternoon=afternoon, wait=wait) # make this into a dataframe
+
+# model 
+m13M1 <- map2stan(
+  alist(
+    wait ~ dnorm(mu, sigma), # likelihood
+    mu <- a_cafe[cafe] + b_cafe[cafe]*afternoon, # linear model
+    c(a_cafe,b_cafe)[cafe] ~ dmvnorm2(c(a,b), sigma_cafe, Rho), # population of varying effects, don't quite
+    # understand this code, where is the covariance matrix??? 
+    a ~ dnorm(0, 10), 
+    b ~ dnorm(0, 10), 
+    sigma_cafe ~ dcauchy(0, 2), 
+    sigma ~ dcauchy(0, 2), 
+    Rho ~ dlkjcorr(1) # prior for covariance 
+  ), 
+  data = d, 
+  iter = 5000, warmup = 2000, chains = 2)
+
+# examine the posterior correlation between intercept and slopes 
+precis(m13M1, depth = 2)
+post <- extract.samples(m13M1)
+dens(post$Rho[,1,2]) 
+
+# why a positive correlation from the posterior? used the same code as in the book, except that I changed Rho=0, and Rho prior to 1. don't understand... 
+```
+
+```{r}
+# 13M2. Fit this multilevel model to the simulated café data: Use WAIC to compare this model to the model from the chapter, the one that uses a multi-variate Gaussian prior. Explain the result. 
+
+# simulate data, back to Rho=0.7 
+a <- 3.5 # average morning wait time
+b <- (-1) # average difference afternnon wait time
+sigma_a <- 1 # std dev in intercepts
+sigma_b <- 0.5 # std dev in slopes
+rho <- 0.7 # correlation between intercepts and slopes
+
+Mu <- c(a, b)
+
+cov_ab <- sigma_a*sigma_b*rho
+Sigma <- matrix(c(sigma_a^2, cov_ab, cov_ab, sigma_b^2), ncol = 2)
+matrix(c(1,2,3,4), nrow = 2, ncol = 2)
+
+N_cafes <- 20 # number of cafes 
+
+library(MASS)
+set.seed(5) # used to replicate examples
+vary_effects <- mvrnorm(N_cafes, Mu, Sigma)
+vary_effects
+
+a_cafe <- vary_effects[,1]
+b_cafe <- vary_effects[,2]
+
+# simulate robot visit to cafes and collecting data 
+N_visits <- 10 # number of visit 
+afternoon <- rep(0:1, N_visits*N_cafes/2) # robot visit to cafes, 20 in total, 10 visit to each, 1 indicate
+# in the afternoon, 0 indicate in the morning. 
+length(afternoon) # 200 
+cafe_id <- rep(1:N_cafes, each=N_visits) # repeat 10 times of each cafe 
+
+mu <- a_cafe[cafe_id] + b_cafe[cafe_id]*afternoon # generate average waiting time for each cafe? 
+# what this code is doing? 
+sigma <- 0.5 # std dev within cafes 
+wait <- rnorm(N_visits*N_cafes, mu, sigma) # simulate wait time based using mu and sigma 
+d <- data.frame(cafe=cafe_id, afternoon=afternoon, wait=wait) # make this into a dataframe
+
+# model in the book 
+library(rethinking)
+m13.1 <- map2stan(
+  alist(
+    wait ~ dnorm(mu, sigma), # likelihood
+    mu <- a_cafe[cafe] + b_cafe[cafe]*afternoon, # linear model
+    c(a_cafe,b_cafe)[cafe] ~ dmvnorm2(c(a,b), sigma_cafe, Rho), # population of varying effects, don't quite
+    # understand this code, where is the covariance matrix??? 
+    a ~ dnorm(0, 10), 
+    b ~ dnorm(0, 10), 
+    sigma_cafe ~ dcauchy(0, 2), 
+    sigma ~ dcauchy(0, 2), 
+    Rho ~ dlkjcorr(2) # prior for covariance 
+  ), 
+  data = d, 
+  iter = 5000, warmup = 2000, chains = 2)
+precis(m13.1, depth = 2)
+
+m13M2 <- map2stan(
+  alist(
+    wait ~ dnorm(mu, sigma), # likelihood
+    mu <- a_cafe[cafe] + b_cafe[cafe]*afternoon, # linear model
+    a_cafe[cafe] ~ dnorm(a, sigma_a),
+    b_cafe[cafe] ~ dnorm(b, sigma_b),
+    a ~ dnorm(0, 10), 
+    b ~ dnorm(0, 10), 
+    sigma_a ~ dcauchy(0, 1),
+    sigma_b ~ dcauchy(0, 1), 
+    sigma ~ dcauchy(0, 1) 
+    ), 
+  data = d, 
+  iter = 5000, warmup = 2000, chains = 2) 
+precis(m13M2, depth=2)
+
+compare(m13.1, m13M2)
+# the model in the book is better because it considers the correlation between intercept and slope whereas the model we constructed here does not. 
+```
+
+```{r}
+# 13M3. Re-estimate the varying slopes model for the UCBadmit data, now using a non-centered parameterization. Compare the efficiency of the forms of the model, using n_eff. Which is better? Which chain sampled faster? 
+
+library(rethinking)
+data("UCBadmit")
+d <- UCBadmit
+d$male <- ifelse(d$applicant.gender=="male", 1,0)
+d$dept_id <- coerce_index(d$dept)
+
+# model here  
+m13M3 <- map2stan(
+  alist(
+    admit ~ dbinom(applications, p), 
+    logit(p) <- a_dept[dept_id] + 
+                bm_dept[dept_id]*male, 
+    c(a_dept, bm_dept)[dept_id] ~ dmvnorm2(c(a,bm), sigma_dept, Rho), 
+    a ~ dnorm(0, 10), 
+    bm ~ dnorm(0,1), 
+    sigma_dept ~ dcauchy(0,2),
+    Rho ~ dlkjcorr(2)
+  ), 
+  data = d)
+precis(m13.3, depth = 2)
+
+# model in the book 
+m13.3 <- map2stan(
+  alist(
+    admit ~ dbinom(applications, p), 
+    logit(p) <- a_dept[dept_id] + 
+                bm_dept[dept_id]*male, 
+    c(a_dept, bm_dept)[dept_id] ~ dmvnorm2(c(a,bm), sigma_dept, Rho), 
+    a ~ dnorm(0, 10), 
+    bm ~ dnorm(0,1), 
+    sigma_dept ~ dcauchy(0,2),
+    Rho ~ dlkjcorr(2)
+  ), 
+  data = d, warmup = 1000, iter = 5000, chains = 4, cores = 3)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
