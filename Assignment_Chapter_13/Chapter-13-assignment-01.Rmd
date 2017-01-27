@@ -182,21 +182,92 @@ m13M3 <- map2stan(
     Rho ~ dlkjcorr(2)
   ), 
   data = d)
-precis(m13.3, depth = 2)
 
 # model in the book 
-m13.3 <- map2stan(
+# m13.3 <- map2stan(
+#   alist(
+#     admit ~ dbinom(applications, p), 
+#     logit(p) <- a_dept[dept_id] + 
+#                 bm_dept[dept_id]*male, 
+#     c(a_dept, bm_dept)[dept_id] ~ dmvnorm2(c(a,bm), sigma_dept, Rho), 
+#     a ~ dnorm(0, 10), 
+#     bm ~ dnorm(0,1), 
+#     sigma_dept ~ dcauchy(0,2),
+#     Rho ~ dlkjcorr(2)
+#   ), 
+#   data = d, warmup = 1000, iter = 4000, chains = 4, cores = 2)
+# R studio keeps crashing, not able to get the model 
+
+```
+
+```{r}
+# 13H1. Let's revisit the Bangladesh fertility data, data(bangladesh), from the practice problems for Chapter 12. Fit a model with both varying intercepts by district_id and varying slopes of urban by district_id. You are still predicting use.contraception. Inspect the correlation between the intercepts and slopes. Can you interpret this correlation, in terms of what it tells you about the pattern of contraceptive use in the sample? It might help to plot the mean (or median) varying effect estimates for both the intercepts and slopes, by district. Then you can visualize the correlation and maybe more easily think through what it means to have a particular correlation. Plotting predicted proportion of women using contraception, with urban women on one axis and rural on the other, might also help. 
+
+# get data, 1934 women's fertility data 
+library(rethinking)
+data("bangladesh")
+d.fertility <- bangladesh
+head(d.fertility) # 1) district: where they are from 2) use.contraception: 0/1 indicate yes or no 3) urban: from city or rural area 
+colnames(d.fertility) <- gsub("\\.", "_", colnames(d.fertility)) # remove dots 
+head(d.fertility)
+dim(d.fertility) # 1934    6 
+str(d.fertility)
+
+# The first thing to do is ensure that the cluster variable, district, is a contiguous set of integers. Recall that these values will be index values inside the model. If there are gaps, you'll have parameters for which there is no data to inform them. Worse, the model probably won't run. Look at the unique values of the district variable: 
+
+sort(unique(d.fertility$district))
+
+# District 54 is absent. So district isn't yet a good index variable, because it's not contiguous. This is easy to fix. Just make a new variable that is contiguous. This is enough to do it: 
+
+d.fertility$district_id <- as.integer(as.factor(d.fertility$district))
+sort(unique(d.fertility$district_id))
+```
+
+```{r}
+# Now, focus on predicting use.contraception, clustered by district_id. 
+# create dummy variable 
+# fit a multilevel model with varying intercepts for district.  
+m12H1.2 <- map2stan(
   alist(
-    admit ~ dbinom(applications, p), 
-    logit(p) <- a_dept[dept_id] + 
-                bm_dept[dept_id]*male, 
-    c(a_dept, bm_dept)[dept_id] ~ dmvnorm2(c(a,bm), sigma_dept, Rho), 
-    a ~ dnorm(0, 10), 
-    bm ~ dnorm(0,1), 
-    sigma_dept ~ dcauchy(0,2),
+    use_contraception ~ dbinom(1, p),
+    logit(p) <- a_district[district_id],
+    a_district[district_id] ~ dnorm(a, sigma),
+    a ~ dnorm(0, 1), 
+    sigma ~ dcauchy(0, 1)  
+  ), data = d.fertility, iter = 4000, chains = 4, cores = 2) 
+
+# fit a multilevel model with varying intercepts for district and for slope too... 
+m13H1 <- map2stan(
+  alist(
+    use_contraception ~ dbinom(1, p),
+    logit(p) <- a_district[district_id] + 
+                b_district[district_id]*urban,
+    c(a_district, b_district)[district_id] ~ dmvnorm2(c(a, b), sigma_district, Rho),
+    a ~ dnorm(0, 1),
+    b ~ dnorm(0, 1), 
+    sigma_district ~ dcauchy(0, 1),
     Rho ~ dlkjcorr(2)
-  ), 
-  data = d, warmup = 1000, iter = 5000, chains = 4, cores = 3)
+  ), data = d.fertility, iter = 4000, chains = 4, cores = 2) 
+
+precis(m12H1.2, depth = 2)
+precis(m13H1, depth = 2)
+compare(m13H1, m12H1.2) # the model with variant slope is much better... 
+
+post <- extract.samples(m13H1)
+dens(post$Rho[,1,2]) # a strong negative corrleation between intecept and slope 
+
+# this negative correlation suggests that: in a district where it has the highest ratio of using contraception, the variation between its urban and rural area in using contraception is smaller. 
+
+# plot the mean varying effect estimates for both the intercept and slope, by district
+a <- apply(post$a_district, 2, mean) # get the mean of intercept 
+b <- apply(post$b_district, 2, mean) # mean of slope 
+
+plot(a, b, xlab="intercept", ylab="slope",
+     pch=16, col=rangi2, ylim=c(min(b)-0.1, max(b)+0.1),
+     xlim=c(min(a)-0.1, max(a)+0.1)) 
+# negative correlation 
+# plot the predicted contraception for rual and urban area seperately, how? 
+
 
 ```
 
