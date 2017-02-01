@@ -1,0 +1,87 @@
+---
+title: "JM_LMER_BRMS"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+## import data 
+```{r}
+GC.pheno <- read.csv("shade_avoidance_expt_in_GC.csv",na.string=c("NA","N/A")) # replace all NA w/ N/A (the standard missing data format in R)
+GH.pheno <- read.csv("shade_avoidance_expt_in_GH.csv", na.string=c("NA","N/A"))
+
+head(GC.pheno)
+head(GH.pheno)
+
+summary(GC.pheno)
+summary(GH.pheno)
+```
+
+## reformat data, get a factor for rep 
+```{r}
+library("stringr") # to help substring letters use negative to count backwards
+
+# GC 
+names(GC.pheno)[3] <- "gt"
+GC.pheno$rep <- as.factor(str_sub(GC.pheno$barcode,-2,-2))  # 8 reps 
+
+# 
+GC.pheno$height <- GC.pheno$No..of.internodes * GC.pheno$intleng
+head(GC.pheno)
+
+GC.pheno.data <- GC.pheno[, c("gt", "trt", "leaves", "No..of.internodes", "leafl", "leafw", "petleng", "rep", "height")]
+colnames(GC.pheno.data) <- c("gt", "trt", "leaf_No", "internode_No", "leafl_ave", "leafw_ave", "petleng_ave", "rep", "height")
+head(GC.pheno.data)
+
+# GH 
+GH.pheno$rep <- as.factor(GH.pheno$rep)
+GH.pheno$rep 
+head(GH.pheno)
+
+GH.pheno$petleng_ave <- round(rowMeans(subset(GH.pheno, select=c("pet1", "pet2", "pet3")), na.rm = T), digits = 1)
+GH.pheno.data <- GH.pheno[, c("trt", "rep", "intleng", "leafleng", "leafwid", "leafnum", "internum", "species", "petleng_ave")]
+colnames(GH.pheno.data) <- c("trt", "rep", "height", "leafl_ave", "leafw_ave", "leaf_No", "internode_No", "gt", "petleng_ave")
+head(GH.pheno.data)
+GH.pheno.data$trt
+```
+
+## load the libs 
+```{r}
+library(lmerTest) #loads lmerTest and lme4
+library(brms)
+library(ggplot2)
+```
+
+## mixed-effect linear model selection (rep as random effect), using all original data scale 
+```{r}
+# GC
+# R500_SUN as ref 
+# set reference level 
+GC.pheno.data$trt <- relevel(GC.pheno.data$trt, ref = "SUN")
+GC.pheno.data$gt <- relevel(GC.pheno.data$gt, ref = "R500")
+
+lmer.height.GC <- lmer(height ~ gt * trt + (1|rep), data = GC.pheno.data)
+lmer.summary.height.GC <- summary(lmer.height.GC)
+```
+
+```{r}
+lmer.summary.height.GC
+```
+
+```{r}
+brms.GC_height <- brm(height ~ trt * gt + (1|rep), 
+            data = GC.pheno.data,
+            prior = c(set_prior("normal(0,100)",class="b")) # sets prior for all b coefficients  
+) 
+```
+
+```{r}
+summary(brms.GC_height)
+fixef(brms.GC_height)
+```
