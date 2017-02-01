@@ -1,0 +1,55 @@
+---
+title: "Chapter-13-assignment-02"
+author: "Ruijuan Li"
+date: "1/31/2017"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r}
+# 13E3 When is it possible for a varying slopes model to have fewer effective parameters (as estimated by WAIC or DIC) than the corresponding model with fixed (unpooled) slopes? Explain.
+
+# ... 
+```
+
+
+```{r}
+# 13M3. Re-estimate the varying slopes model for the UCBadmit data, now using a non-centered parameterization. Compare the efficiency of the forms of the model, using n_eff. Which is better? Which chain sampled faster? 
+
+library(rethinking)
+data("UCBadmit")
+d <- UCBadmit
+d$male <- ifelse(d$applicant.gender=="male", 1,0)
+d$dept_id <- coerce_index(d$dept)
+
+# model here  
+m13M3 <- map2stan(
+  alist(
+    admit ~ dbinom(applications, p), 
+    logit(p) <- a + a_dept[dept_id] + 
+                bm_dept[dept_id]*male, 
+    c(a_dept, bm_dept)[dept_id] ~ dmvnormNC(sigma_dept, Rho), # this line, wrong... 
+    a ~ dnorm(0, 10), 
+    sigma_dept ~ dcauchy(0,2),
+    Rho ~ dlkjcorr(2)
+  ), 
+  data = d, warmup = 1000, iter = 5000, chains = 4, cores = 3)
+
+# model in the book 
+m13.3 <- map2stan(
+  alist(
+    admit ~ dbinom(applications, p), 
+    logit(p) <- a_dept[dept_id] + 
+                bm_dept[dept_id]*male, 
+    c(a_dept, bm_dept)[dept_id] ~ dmvnorm2(c(a,bm), sigma_dept, Rho), 
+    a ~ dnorm(0, 10), 
+    bm ~ dnorm(0,1), 
+    sigma_dept ~ dcauchy(0,2),
+    Rho ~ dlkjcorr(2)
+  ), 
+  data = d, warmup = 1000, iter = 5000, chains = 4, cores = 3)
+
+precis(m13.3, depth = 2)
+precis(m13M3, depth = 2)
+```

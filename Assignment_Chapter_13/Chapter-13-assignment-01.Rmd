@@ -28,7 +28,7 @@ a <- 3.5 # average morning wait time
 b <- (-1) # average difference afternnon wait time
 sigma_a <- 1 # std dev in intercepts
 sigma_b <- 0.5 # std dev in slopes
-rho <- 0 # correlation between intercepts and slopes
+rho <- 0.5 # correlation between intercepts and slopes
 
 Mu <- c(a, b)
 
@@ -58,6 +58,42 @@ mu <- a_cafe[cafe_id] + b_cafe[cafe_id]*afternoon # generate average waiting tim
 sigma <- 0.5 # std dev within cafes 
 wait <- rnorm(N_visits*N_cafes, mu, sigma) # simulate wait time based using mu and sigma 
 d <- data.frame(cafe=cafe_id, afternoon=afternoon, wait=wait) # make this into a dataframe
+head(d)
+
+######
+a2 <- 3.5 # average morning wait time
+b2 <- (-1) # average difference afternnon wait time
+sigma_a2 <- 1 # std dev in intercepts
+sigma_b2 <- 0.5 # std dev in slopes
+rho2 <- -0.7 # correlation between intercepts and slopes
+
+Mu2 <- c(a2, b2)
+
+cov_ab2 <- sigma_a2*sigma_b2*rho2
+Sigma2 <- matrix(c(sigma_a2^2, cov_ab2, cov_ab2, sigma_b2^2), ncol = 2)
+
+library(MASS)
+set.seed(5) # used to replicate examples
+vary_effects2 <- mvrnorm(N_cafes, Mu2, Sigma2)
+vary_effects2
+
+a_cafe2 <- vary_effects2[,1]
+b_cafe2 <- vary_effects2[,2]
+
+# simulate robot visit to cafes and collecting data 
+afternoon <- rep(0:1, N_visits*N_cafes/2) # robot visit to cafes, 20 in total, 10 visit to each, 1 indicate
+# in the afternoon, 0 indicate in the morning. 
+length(afternoon) # 200 
+cafe_id <- rep(1:N_cafes, each=N_visits) # repeat 10 times of each cafe 
+
+mu2 <- a_cafe2[cafe_id] + b_cafe2[cafe_id]*afternoon # generate average waiting time for each cafe? 
+# what this code is doing? 
+sigma2 <- 0.5 # std dev within cafes 
+wait2 <- rnorm(N_visits*N_cafes, mu2, sigma2) # simulate wait time based using mu and sigma 
+d2 <- data.frame(cafe=cafe_id, afternoon=afternoon, wait=wait2) # make this into a dataframe
+
+head(d)
+######
 
 # model 
 m13M1 <- map2stan(
