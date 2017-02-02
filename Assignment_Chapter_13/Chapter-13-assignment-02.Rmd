@@ -10,7 +10,7 @@ output:
 ```{r}
 # 13E3 When is it possible for a varying slopes model to have fewer effective parameters (as estimated by WAIC or DIC) than the corresponding model with fixed (unpooled) slopes? Explain.
 
-# ... 
+# non-centered parameterizaiton? don't understand...  
 ```
 
 
@@ -40,9 +40,9 @@ m13M3 <- map2stan(
 m13.3 <- map2stan(
   alist(
     admit ~ dbinom(applications, p), 
-    logit(p) <- a_dept[dept_id] + 
+    logit(p) <- a + a_dept[dept_id] + 
                 bm_dept[dept_id]*male, 
-    c(a_dept, bm_dept)[dept_id] ~ dmvnorm2(c(a,bm), sigma_dept, Rho), 
+    c(a_dept, bm_dept)[dept_id] ~ dmvnorm2(c(0, 0), sigma_dept, Rho), 
     a ~ dnorm(0, 10), 
     bm ~ dnorm(0,1), 
     sigma_dept ~ dcauchy(0,2),
@@ -52,4 +52,16 @@ m13.3 <- map2stan(
 
 precis(m13.3, depth = 2)
 precis(m13M3, depth = 2)
+compare(m13.3, m13M3) # two exatly same model??? 
+
+neff_c <- precis(m13.3, 2)@output$n_eff # don't understand this code, discuss with Julin  
+neff_nc <- precis(m13M3,2)@output$n_eff
+
+# plot distributions 
+boxplot(list('m13.3'=neff_c, 'm13M3'=neff_nc),
+        ylab="effective samples", xlab="model") # I got higher numbers of n_eff in the one w/o non-centered parameterization.  
+
+WAIC(m13M3)
+WAIC(m13.3) 
+
 ```
