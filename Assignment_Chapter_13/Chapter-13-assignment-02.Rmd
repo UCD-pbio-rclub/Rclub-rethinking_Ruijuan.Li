@@ -10,7 +10,10 @@ output:
 ```{r}
 # 13E3 When is it possible for a varying slopes model to have fewer effective parameters (as estimated by WAIC or DIC) than the corresponding model with fixed (unpooled) slopes? Explain.
 
-# non-centered parameterizaiton? don't understand...  
+# non-centered parameterizaiton? don't understand... 
+# 
+
+
 ```
 
 
