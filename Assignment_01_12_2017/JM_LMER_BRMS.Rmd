@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## import data 
 ```{r}
+setwd("~/Desktop/2017_winter/Rclub-rethinking_Ruijuan.Li/Assignment_01_12_2017/")
 GC.pheno <- read.csv("shade_avoidance_expt_in_GC.csv",na.string=c("NA","N/A")) # replace all NA w/ N/A (the standard missing data format in R)
 GH.pheno <- read.csv("shade_avoidance_expt_in_GH.csv", na.string=c("NA","N/A"))
 
@@ -85,3 +86,9 @@ brms.GC_height <- brm(height ~ trt * gt + (1|rep),
 summary(brms.GC_height)
 fixef(brms.GC_height)
 ```
+
+# when is better to use lmer, when is better to use BRMS... always better to use baysien, but 
+# what to report, the raw data, or the summary. what is the summary for lmer? the maximum likelihood result? 
+# I know for BRMS it is the poterior. 
+
+
