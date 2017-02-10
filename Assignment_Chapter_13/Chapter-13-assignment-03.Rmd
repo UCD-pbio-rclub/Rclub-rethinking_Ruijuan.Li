@@ -11,6 +11,54 @@ output:
 ```{r}
 # Use WAIC to compare the Gaussian process model of Oceanic tools to the models fit to the same data in Chapter 10. Pay special attention to the effective numbers of parameters, as estimated by WAIC. 
 
+# load the distance matrix 
+library(rethinking)
+data("islandsDistMatrix")
+
+# display short column names, so fits on screen 
+Dmat <- islandsDistMatrix
+colnames(Dmat) <- c("Ml", "Ti", "SC", "Ya", "Fi", "Tr", "Ch", "Mn", "To", "Ha")
+round(Dmat, 1)
+
+data("Kline2") # load the ordinary data, now with coordicates
+d <- Kline2
+d$society <- 1:10 # index observations
+
+m13.7 <- map2stan(
+  alist(
+    total_tools ~ dpois(lambda),
+    log(lambda) <- a + g[society] + bp*logpop,
+    g[society] ~ GPL2(Dmat, etasq, rhosq, 0.01), 
+    a ~ dnorm(0, 10), 
+    bp ~ dnorm(0, 1), 
+    etasq ~ dcauchy(0, 1), 
+    rhosq ~ dcauchy(0, 1)
+  ), 
+  data = list(
+    total_tools = d$total_tools,
+    logpop = d$logpop, 
+    society = d$society,
+    Dmat = islandsDistMatrix), 
+warmup = 2000, iter = 1e4, chains = 4)
+
+precis(m13.7, depth = 2)
+
+# fit model 
+m <- map2stan(
+  alist(
+    total_tools ~ dpois(lambda),
+    log(lambda) <- a + bp*logpop, 
+    a ~ dnorm(0, 10), 
+    bp ~ dnorm(0, 1)  
+  ), 
+  data = d, warmup = 2000, iter = 4000, chains = 4
+)
+
+compare(m10.12, m13.7)
+precis(m, depth = 2)
+precis(m13.7, depth = 2)
+WAIC(m)
+WAIC(m13.7) # more parameters due to the extra cosideration of society ...   
 ```
 
 # 13H2
@@ -19,11 +67,48 @@ output:
 
 # Fit a model with varying intercepts and slopes (on age), clustered by Subject. Present and interpret the parameter estimates. Which varying effect contributes more variation to the heights, the intercept or the slope? 
 
+data("Oxboys")
+d2 <- Oxboys
+head(d2)
+d2$Subject 
+d2$Occasion
+mean(d2$height)
+sd(d2$height)
+
+# build a distance matrix for age? 
+
+
+
+
+# don't know how to include varying slope, slope and intercept covary, need to consider, and how to include distance matrix for both intercept and slope  
+m13H2 <- map2stan(
+  alist(
+    height ~ dnorm(mu, sigma),
+    mu <- a + a_subject[subject] + b*age,
+    a_subject[subject] ~ GPL2(Dmat, etasq, rhosq, 0.01), # need a distance matrix 
+    a ~ dnorm(150, 10),
+    b ~ dnorm(0, 10)
+    etasq ~ dcauchy(0, 1), 
+    rhosq ~ dcauchy(0, 1)
+  ), 
+  data = list(
+    height = d2$height,
+    subject = d2$Subject, 
+    age = d2$age,
+    Dmat = islandsDistMatrix), 
+warmup = 2000, iter = 1e4, chains = 4) 
+
+# where is the distance matrix??? how to get it??? 
+
+
 ```
 
 # 13H3
-```{r} 
+```{r}  
 # Now consider the correlation between the varying intercepts and slopes. Can you explain its value? How would this estimated correlation influence your predictions about a new sample of boys? 
+
+
+
 
 ```
 
