@@ -1,0 +1,29 @@
+---
+title: "Chapter-13-assignment-03"
+author: "Ruijuan Li"
+date: "2/9/2017"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+# 13M4
+```{r}
+# Use WAIC to compare the Gaussian process model of Oceanic tools to the models fit to the same data in Chapter 10. Pay special attention to the effective numbers of parameters, as estimated by WAIC. 
+
+```
+
+# 13H2
+```{r}
+# Varying effects models are useful for modeling time series, as well as spatial clustering. In a time series, the observations cluster by entities that have continuity through time, such as individuals. Since observations within individuals are likely highly correlated, the multilevel structure can help quite a lot. You'll use the data in data(Oxboys), which is 234 height measurements on 26 boys from an Oxford Boys Club (I think these were like youth athletic leagues?), at 9 different ages (centered and standardized) per boy. You'll be interested in predicting height, using age, clustered by Subject (individual boy).
+
+# Fit a model with varying intercepts and slopes (on age), clustered by Subject. Present and interpret the parameter estimates. Which varying effect contributes more variation to the heights, the intercept or the slope? 
+
+```
+
+# 13H3
+```{r} 
+# Now consider the correlation between the varying intercepts and slopes. Can you explain its value? How would this estimated correlation influence your predictions about a new sample of boys? 
+
+```
+
