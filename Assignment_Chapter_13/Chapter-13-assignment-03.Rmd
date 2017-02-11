@@ -69,25 +69,21 @@ WAIC(m13.7) # more parameters due to the extra cosideration of society ...
 
 data("Oxboys")
 d2 <- Oxboys
-head(d2)
-d2$Subject 
-d2$Occasion
-mean(d2$height)
-sd(d2$height)
+head(d2) 
 
-# build a distance matrix for age? 
+Dmat2 <- as.matrix(dist(d2)) 
+Dmat2
+?dist
 
+# don't know how to include varying slope, slope and intercept covary, need to consider, and how to include distance matrix for both intercept and slope, also since multiple observatison for each individual, there is sigma within group, cannot use 0.01.  
 
-
-
-# don't know how to include varying slope, slope and intercept covary, need to consider, and how to include distance matrix for both intercept and slope  
 m13H2 <- map2stan(
   alist(
     height ~ dnorm(mu, sigma),
-    mu <- a + a_subject[subject] + b*age,
-    a_subject[subject] ~ GPL2(Dmat, etasq, rhosq, 0.01), # need a distance matrix 
-    a ~ dnorm(150, 10),
-    b ~ dnorm(0, 10)
+    mu <- a + a_subject[subject] + b_subject[subject]*age,
+    # a_subject[subject] ~ GPL2(Dmat, etasq, rhosq, 0.01), # need a distance matrix 
+    a ~ dnorm(150, 10), 
+    b ~ dnorm(0, 10), 
     etasq ~ dcauchy(0, 1), 
     rhosq ~ dcauchy(0, 1)
   ), 
@@ -101,9 +97,12 @@ warmup = 2000, iter = 1e4, chains = 4)
 # where is the distance matrix??? how to get it??? 
 
 
+
+
+
 ```
 
-# 13H3
+# 13H3 
 ```{r}  
 # Now consider the correlation between the varying intercepts and slopes. Can you explain its value? How would this estimated correlation influence your predictions about a new sample of boys? 
 
