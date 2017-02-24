@@ -1,0 +1,257 @@
+---
+title: "Chapter-14-assignment-01"
+author: "Ruijuan Li"
+date: "2/24/2017"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+# question from last week 
+```{r}
+# when to use discrete or continuous cluster? 
+```
+
+# 14E1
+```{r}
+# this is the case where only have measurement error on the preditor... 
+
+# Ti ~ poisson(ui) # when to use poisson distribution? 
+# logui = a + b*(logPi_est,i) 
+# logpi_obs,i ~ Normal(logpi_est,i , logpi_se,i) 
+# a ~ Normal(0, 10)
+# b ~ Normal(0, 1) 
+```
+
+# 14M3
+```{r}
+# Repeat the divorce data measurement error models, but this time double the standard errors. Can you explain how doubling the standard errors impacts inference? 
+
+# get data 
+library(rethinking)
+data("WaffleDivorce")
+d <- WaffleDivorce
+
+# model in the book 
+dlist <- list(
+  div_obs = d$Divorce,
+  div_sd = d$Divorce.SE,
+  R = d$Marriage,
+  A = d$MedianAgeMarriage
+) # make a list 
+
+m14.1 <- map2stan(
+  alist(
+    div_est ~ dnorm(mu,sigma), # outcome parameter also get a second role as the unknown mean of
+    # another distribution, one that "predicts" the observed measurement 
+    mu <- a + bA*A + bR*R,
+    div_obs ~ dnorm(div_est, div_sd), # the uncertainly in measurement inluences the regression
+    # parameters in the linear model, and the regression parameters in the linear model also 
+    # influence the uncertainty in the measurement. 
+    a ~ dnorm(0, 10),
+    bA ~ dnorm(0, 10),
+    bR ~ dnorm(0, 10),
+    sigma ~ dcauchy(0, 2.5)
+  ), 
+  data = dlist, 
+  start = list(div_est=dlist$div_obs), # start at the observed value for each state 
+  WAIC = FALSE, iter = 5000, warmup = 1000, chains = 2, cores = 2, 
+  control=list(adapt_delta=0.95) # stan will work harder during warmup and potentially sample more
+  # efficiently. 
+)
+
+dlist2 <- list(
+  div_obs = d$Divorce,
+  div_sd = d$Divorce.SE * 2,
+  R = d$Marriage,
+  A = d$MedianAgeMarriage
+) # make a list 
+
+# model with doubled standard error 
+m14M3 <- map2stan(
+  alist(
+    div_est ~ dnorm(mu,sigma), # outcome parameter also get a second role as the unknown mean of
+    # another distribution, one that "predicts" the observed measurement 
+    mu <- a + bA*A + bR*R,
+    div_obs ~ dnorm(div_est, div_sd), # the uncertainly in measurement inluences the regression
+    # parameters in the linear model, and the regression parameters in the linear model also 
+    # influence the uncertainty in the measurement. 
+    a ~ dnorm(0, 10),
+    bA ~ dnorm(0, 10),
+    bR ~ dnorm(0, 10),
+    sigma ~ dcauchy(0, 2.5)
+  ), 
+  data = dlist2, 
+  start = list(div_est=dlist2$div_obs), # start at the observed value for each state 
+  WAIC = FALSE, iter = 5000, warmup = 1000, chains = 2, cores = 2, 
+  control=list(adapt_delta=0.95) # stan will work harder during warmup and potentially sample more
+  # efficiently. 
+) ###### crash 
+
+precis(m14.1, depth = 2)
+precis(m14M3, depth = 2)
+# don't sample very well, Rhat greater than 1. 
+# guess double the standerad error would make the inference less shrinked... 
+
+```
+
+# 14H1
+```{r}
+# The data in data(elephants) are counts of matings observed for bull elephants of differing ages. There is a strong positive relationship between age and matings. However, age is not always assessed accurately. First, fit a Poisson model predicting MATINGS with AGE as a predictor. Second, assume that the observed AGE values are uncertain and have a standard error of ±5 years. Re-estimate the relationship between MATINGS and AGE, incorporating this measurement error. Compare the inferences of the two models. 
+
+library(rethinking)
+data("elephants")
+d <- elephants
+
+m14H1.1 <- map2stan(
+  alist(
+    MATINGS ~ dpois(lambda), # need to understand poisson distribution more 
+    log(lambda) <- a + ba*AGE,
+    a ~ dnorm(0, 10), # how to determine this? 
+    ba ~ dnorm(0, 1) 
+  ), 
+  data = d, iter = 3000, warmup = 1000, chains = 4)
+
+log(mean(d$MATINGS)) # Is this the right way to determine prior for a? 
+precis(m14H1.1)
+
+dlist_14H1 <- list(
+  MATINGS = d$MATINGS,
+  AGE_obs = d$AGE,
+  AGE_sd = rep(5, nrow(d)) # standard error vs standard deviation 
+) 
+
+m14H1.2 <- map2stan(
+  alist(
+    MATINGS ~ dpois(lambda), 
+    log(lambda) <- a + ba*AGE_est[i], # why [i] here??? 
+    AGE_obs ~ dnorm(AGE_est, AGE_sd),  
+    a ~ dnorm(0, 10), # how to determine this? 
+    ba ~ dnorm(0, 1) 
+  ), 
+  data = dlist_14H1, 
+  start = list(AGE_est=dlist_14H1$AGE_obs), 
+  WAIC = FALSE, iter = 5000, warmup = 1000, chains = 2, cores = 2, 
+  control=list(adapt_delta=0.95)  
+) 
+
+precis(m14H1.2)
+precis(m14H1.1)
+
+# how to interpret the result? 
+# after adding standard error of 5, ba stays the same but its stddev bacomes larger, so more uncertainties are included? less association? 
+
+# draw plot to illustrate? like figure 14.2, come back later... 
+plot(d$AGE, d$MATINGS) # original data 
+post <- extract.samples(m14H1.1) # extract posterior 
+mean.a <- mean(post$a) # mean of intercept 
+mean.ba <- mean(post$ba) # mean of slope 
+abline(m14H1.1) # add association line 
+# don't know how to do this 
+
+# draw the same thing using predicted 
+pred <- link(m14H1.1) 
+
+pred.mean <- apply(pred, 2, mean) # predict mean for mating 
+pred.mean
+lines(d$AGE, pred.mean) 
+
+pred.PI <- apply(pred, 2, PI)
+pred.PI
+shade(pred.data, d$AGE)
+
+######### add predited data from the second model 
+pred2 <- link(m14H1.2) 
+
+pred.mean.2 <- apply(pred2, 2, mean) # predict mean for mating 
+pred.mean.2
+lines(d$AGE, pred.mean.2) 
+
+pred.PI.2 <- apply(pred2, 2, PI)
+pred.PI.2
+shade(pred.PI.2, d$AGE)
+
+```
+
+# 14H2 
+```{r}
+# Repeat the model fitting problem above, now increasing the assumed standard error on AGE. How large does the standard error have to get before the posterior mean for the coefficient on AGE reaches zero? 
+
+# stdv of 10 
+# dlist_14H2.1 <- list(
+#   MATINGS = d$MATINGS,
+#   AGE_obs = d$AGE,
+#   AGE_sd = rep(10, nrow(d)) # standard error vs standard deviation 
+# ) 
+# 
+# dlist_14H2.1
+# 
+# m14H2.1 <- map2stan(
+#   alist(
+#     MATINGS ~ dpois(lambda), 
+#     log(lambda) <- a + ba*AGE_est[i], # why [i] here??? 
+#     AGE_obs ~ dnorm(AGE_est, AGE_sd),  
+#     a ~ dnorm(0, 10), # how to determine this? 
+#     ba ~ dnorm(0, 1) 
+#   ), 
+#   data = dlist_14H2.1, 
+#   start = list(AGE_est=dlist_14H2.1$AGE_obs), 
+#   WAIC = FALSE, iter = 5000, warmup = 1000, chains = 2, cores = 2, 
+#   control=list(adapt_delta=0.95)  
+# ) 
+# 
+# precis(m14H2.1)
+# 
+# d$AGE
+# # stdv of 20 
+# dlist_14H2.2 <- list(
+#   MATINGS = d$MATINGS,
+#   AGE_obs = d$AGE,
+#   AGE_sd = rep(20, nrow(d)) # standard error vs standard deviation 
+# ) 
+# 
+# dlist_14H2.2
+# 
+# m14H2.2 <- map2stan(
+#   alist(
+#     MATINGS ~ dpois(lambda), 
+#     log(lambda) <- a + ba*AGE_est[i], # why [i] here??? 
+#     AGE_obs ~ dnorm(AGE_est, AGE_sd),  
+#     a ~ dnorm(0, 10), # how to determine this? 
+#     ba ~ dnorm(0, 1) 
+#   ), 
+#   data = dlist_14H2.2, 
+#   start = list(AGE_est=dlist_14H2.2$AGE_obs), 
+#   WAIC = FALSE, iter = 5000, warmup = 1000, chains = 2, cores = 2, 
+#   control=list(adapt_delta=0.95)  
+# ) 
+# 
+# precis(m14H2.2)
+# 
+# # stdv of 50 
+# dlist_14H2.5 <- list(
+#   MATINGS = d$MATINGS,
+#   AGE_obs = d$AGE,
+#   AGE_sd = rep(50, nrow(d)) # standard error vs standard deviation 
+# ) 
+# 
+# dlist_14H2.5
+# 
+# m14H2.5 <- map2stan(
+#   alist(
+#     MATINGS ~ dpois(lambda), 
+#     log(lambda) <- a + ba*AGE_est[i], # why [i] here??? 
+#     AGE_obs ~ dnorm(AGE_est, AGE_sd),  
+#     a ~ dnorm(0, 10), # how to determine this? 
+#     ba ~ dnorm(0, 1) 
+#   ), 
+#   data = dlist_14H2.5, 
+#   start = list(AGE_est=dlist_14H2.5$AGE_obs), 
+#   WAIC = FALSE, iter = 5000, warmup = 1000, chains = 2, cores = 2, 
+#   control=list(adapt_delta=0.95)  
+# ) 
+# 
+# precis(m14H2.5)
+# std error of 50 get the coefficient down to 0.01... 
+```
+
