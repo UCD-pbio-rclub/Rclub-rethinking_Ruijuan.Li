@@ -7,6 +7,12 @@ output:
     keep_md: yes
 ---
 
+# question from this week 
+```{r}
+# 1) in the model, Ni for observed data is the true obseved data? Ni for missing data is determined by the distribution? "The trick to imputation is to simultaneously model the predictor variable that has missing values together with the outcome variable" just to confirm...  
+```
+
+
 # 14E2
 ```{r}
 # Rewrite the same model so that it allows imputation of missing values for log population. There aren't any missing values in the variable, but you can still write down a model formula that would imply imputation, if any values were missing. 
@@ -23,7 +29,7 @@ sd(d$log_pop) # 1.5
 # logpi ~ Normal(v, sigma)
 # a ~ Normal(0, 10)
 # b ~ Normal(0, 1) 
-# v ~ Normal(9, 5) # how to determine stdv  
+# v ~ Normal(10, 10) # how to determine stdv  
 # sigma ~ Cauchy(0, 1)  
 ```
 
@@ -55,7 +61,7 @@ data_list <- list(
 # m14M1 <- map2stan(
 #   alist(
 #     kcal ~ dnorm(mu, sigma), 
-#     mu <- dnorm(0, 100), 
+#     mu ~ dnorm(0, 100), 
 #     sigma ~ dcauchy(0, 1)
 #   ), 
 #   data = data_list, iter = 1e4, chains = 2
@@ -179,7 +185,7 @@ plot(coeftab(m14H3.1, m14H3.2))
 
 # Why? 
 d
-dcc.df
+dcc.df 
 
 plot(dcc.df$x, dcc.df$y)
 # because when excluding the missing predictor, its assocaited outcome was also excluded, that makes the association appear to be positive, but when including that missing data and assume a similar datapoint as the present data, the correlation will be "skewed" by the very large outcome datapoint.
