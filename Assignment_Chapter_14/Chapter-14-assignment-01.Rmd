@@ -11,10 +11,14 @@ output:
 ```{r}
 # when to use discrete or continuous cluster? 
 # when to use poisson distribution, analogous to plant experiment... when n is very large but p is very small, a special case of binomial distribution. 
+### rare event, tDNA insertion, no grand total ... 
+
 # why get standard error in the raw data? 
 # standard error VS stdv 
 # poisson ditribution outcome measurement error 
 # log transform predictor (eg. age)
+### 
+
 ```
 
 # 14E1

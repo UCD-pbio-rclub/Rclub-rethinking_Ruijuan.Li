@@ -12,7 +12,6 @@ output:
 # 1) in the model, Ni for observed data is the true obseved data? Ni for missing data is determined by the distribution? "The trick to imputation is to simultaneously model the predictor variable that has missing values together with the outcome variable" just to confirm...  
 ```
 
-
 # 14E2
 ```{r}
 # Rewrite the same model so that it allows imputation of missing values for log population. There aren't any missing values in the variable, but you can still write down a model formula that would imply imputation, if any values were missing. 
@@ -191,4 +190,9 @@ plot(dcc.df$x, dcc.df$y)
 # because when excluding the missing predictor, its assocaited outcome was also excluded, that makes the association appear to be positive, but when including that missing data and assume a similar datapoint as the present data, the correlation will be "skewed" by the very large outcome datapoint.
 ```
 
+# chapter "monsters and mixtures" 
+```{r}
+# a lot of zero in the data... (zero inflated data)   
+```
+ 
 
